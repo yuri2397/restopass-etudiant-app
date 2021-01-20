@@ -30,7 +30,14 @@ class _StackContainerState extends State<StackContainer> {
   }
 
   @override
+  void didUpdateWidget (StackContainer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    onPayTop();
+  }
+
+  @override
   Widget build(BuildContext context) {
+
     String f = capitalize(widget.user.firstName);
     String l = capitalize(widget.user.lastName);
     if (f.length > 10) {
@@ -71,15 +78,22 @@ class _StackContainerState extends State<StackContainer> {
                                     Align(
                                       alignment: Alignment.centerLeft,
                                       child: InkWell(
-                                      onTap: () async {
-                                        int number = await _pref.getUserNumber();
-                                        Navigator.push(context, MaterialPageRoute(builder: (context) => Code(number: number.toString(),)));
-                                      },
+                                        onTap: () async {
+                                          int number =
+                                              await _pref.getUserNumber();
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) => Code(
+                                                        number:
+                                                            number.toString(),
+                                                      )));
+                                        },
                                         child: CircleAvatar(
-                                        child: Icon(Icons.qr_code,
-                                            color: kPrimaryColor),
-                                        backgroundColor: Colors.white,
-                                      ),
+                                          child: Icon(Icons.qr_code,
+                                              color: kPrimaryColor),
+                                          backgroundColor: Colors.white,
+                                        ),
                                       ),
                                     ),
                                     SizedBox(width: 20),
@@ -172,7 +186,6 @@ class _StackContainerState extends State<StackContainer> {
         _isReload = false;
       });
     } else if (pay <= -400) {
-      print("ERROR SERVER");
       setState(() {
         _alert = Container(
           width: size.width,
@@ -217,7 +230,8 @@ class _StackContainerState extends State<StackContainer> {
     } else if (pay == -401) {
       SharedPref shar = new SharedPref();
       shar.removeSharedPrefs();
-      Navigator.of(context).pushNamedAndRemoveUntil('/login', (Route<dynamic> route) => false);
+      Navigator.of(context)
+          .pushNamedAndRemoveUntil('/login', (Route<dynamic> route) => false);
       return;
     } else
       setState(() {
@@ -226,7 +240,6 @@ class _StackContainerState extends State<StackContainer> {
         _alert = Container();
         _isReload = false;
       });
-    print(pay);
   }
 } // fin de la class
 
@@ -250,9 +263,7 @@ Future<int> reloadPay() async {
 
   try {
     final response = await http.get(url, headers: requestHeaders);
-    print("RESPONSE BODY : " + response.body);
     if (response.statusCode == 200) {
-      print("RESPONSE STRING : " + response.body);
       pay = int.parse(response.body);
     } else {
       pay = -response.statusCode;
