@@ -217,7 +217,6 @@ class _SettingState extends State<Setting> {
         value = false;
       }
     });
-    print("VALUE : " + value.toString());
     return value;
   }
 
@@ -285,12 +284,9 @@ Future<ApiResponse> sendRequest(String currentPassword, String newPassword) asyn
 
   try{
     final response = await http.post(url, body: body, headers: requestHeaders);
-    print("IN REQUEST FUNCTION" + response.body.toUpperCase());
-    print("IN REQUEST FUNCTION  CODE : " + response.statusCode.toString());
     if(response.statusCode == 200){
       final String responseString = response.body;
       res = apiResponseFromJson(responseString);
-      print('IN : '+ res.toString());
     }
     else {
       res = ApiResponse(error: true, message: response.statusCode.toString());

@@ -183,7 +183,6 @@ class _LoginState extends State<Login> {
                         _isLoad = true;
                       });
                       final AccessToken tmp = await loginRequest(_number, _password);
-                      print("LOGIN : " + tmp.accessToken);
                       _accessToken = tmp;
                       _login(_accessToken);
                     }

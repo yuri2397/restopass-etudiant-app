@@ -38,7 +38,6 @@ Future<List<Transfer>> getList() async {
           .toList();
       return t;
     } else {
-      print("ELESEEEEEEEEEEE");
       List<Transfer> transfer = new List<Transfer>();
       transfer.add(new Transfer(
           amount: response.statusCode,
@@ -47,7 +46,7 @@ Future<List<Transfer>> getList() async {
       return transfer;
     }
   } catch (e) {
-    List<Transfer> transfer;
+    List<Transfer> transfer = new List<Transfer>();
     transfer.add(new Transfer(amount: 0, other: "error", date: "error"));
     return transfer;
   }
@@ -65,21 +64,19 @@ Future<List<Passage>> getPassage() async {
 
   try {
     final response = await http.get(url, headers: requestHeaders);
-    print("RESPONSE : " + response.body);
     if (response.statusCode == 200) {
       List<Passage> t = (json.decode(response.body) as List)
           .map((i) => Passage.fromJson(i))
           .toList();
       return t;
     } else {
-      print("ELESEEEEEEEEEEE");
       List<Passage> passage = new List<Passage>();
       passage.add(new Passage(
           amount: response.statusCode, date: response.statusCode.toString()));
       return passage;
     }
   } catch (e) {
-    List<Passage> passage;
+    List<Passage> passage = List<Passage>();
     passage.add(new Passage(amount: 0, date: "error"));
     return passage;
   }

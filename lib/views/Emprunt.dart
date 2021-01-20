@@ -14,7 +14,6 @@ class Emprunt extends StatefulWidget {
 }
 
 class _EmpruntState extends State<Emprunt> {
-  
   String _message, _montantErrorMessage;
   bool _hasErrors = false;
   bool _montantError = false;
@@ -105,7 +104,6 @@ class _EmpruntState extends State<Emprunt> {
                             _isLoad = true;
                           });
                           var res = await sendRequest(_montant);
-                          print("IN  :" + res.message);
                           if (res.error == false) {
                             setState(() {
                               _isLoad = false;
@@ -241,13 +239,10 @@ class _EmpruntState extends State<Emprunt> {
     try {
       final response =
           await http.post(url, body: body, headers: requestHeaders);
-      print(response.body);
-      print("REQUEST CODE : " + response.statusCode.toString());
 
       final String responseString = response.body;
       res = apiResponseFromJson(responseString);
     } catch (e) {
-      print("CATCHA---------------");
       res = ApiResponse(error: true, message: "500");
     } finally {
       // ignore: control_flow_in_finally
