@@ -150,6 +150,33 @@ class _ListTransferState extends State<ListTransfer>
 
   Widget _afficherListTransfert(context, List<Transfer> list) {
     bool state = list.length == 0;
+    if(list.length == 1 && list[0].date == list[0].other && list[0].date == "error"){
+      return Align(
+        alignment: Alignment.center,
+        child: Container(
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.wifi_off, size: 60, color: Colors.grey),
+              RaisedButton(
+                color: kPrimaryColor,
+                onPressed: () { 
+                  setState(() {
+                    myFuture = getList();
+                  });
+                 },
+                child: Text(
+                  "Réesseyer",
+                  style: TextStyle(color: Colors.white, fontFamily: 'Poppins Light',
+                ),
+              ))
+            ],
+          )
+        ),
+      );
+    }
     return Column(
       children: [
         Expanded(
@@ -290,6 +317,7 @@ class _ListTransferState extends State<ListTransfer>
 
   Widget _afficherListPassage(BuildContext context, List<Passage> list) {
     bool state = list.length == 0;
+    print(list);
     return Column(
       children: [
         Expanded(

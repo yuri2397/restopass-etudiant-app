@@ -78,6 +78,7 @@ Future<ApiResponse> transferConfirmation(
   try {
     final response = await http.post(url, body: body, headers: requestHeaders);
     if (response.statusCode == 200) {
+      print("RES CONF : " + response.body);
       final String responseString = response.body;
       ApiResponse res = apiResponseFromJson(responseString);
       return res;
