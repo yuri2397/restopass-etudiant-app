@@ -30,14 +30,13 @@ class _StackContainerState extends State<StackContainer> {
   }
 
   @override
-  void didUpdateWidget (StackContainer oldWidget) {
+  void didUpdateWidget(StackContainer oldWidget) {
     super.didUpdateWidget(oldWidget);
     onPayTop();
   }
 
   @override
   Widget build(BuildContext context) {
-
     String f = capitalize(widget.user.firstName);
     String l = capitalize(widget.user.lastName);
     if (f.length > 10) {
@@ -185,6 +184,12 @@ class _StackContainerState extends State<StackContainer> {
         );
         _isReload = false;
       });
+    } else if (pay == -401) {
+      SharedPref shar = new SharedPref();
+      shar.removeSharedPrefs();
+      Navigator.of(context)
+          .pushNamedAndRemoveUntil('/login', (Route<dynamic> route) => false);
+      return;
     } else if (pay <= -400) {
       setState(() {
         _alert = Container(
@@ -249,7 +254,7 @@ String capitalize(String text) {
 }
 
 Future<int> reloadPay() async {
-  String url = BASE_URL + '/api/user/pay';
+  String url = BASE_URL + '/api/user/bay';
   SharedPref sharedPref = new SharedPref();
   String accessToken = await sharedPref.getUserAccessToken();
 
@@ -263,6 +268,7 @@ Future<int> reloadPay() async {
 
   try {
     final response = await http.get(url, headers: requestHeaders);
+    print("RESSSSS : " + response.statusCode.toString());
     if (response.statusCode == 200) {
       pay = int.parse(response.body);
     } else {

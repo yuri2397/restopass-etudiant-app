@@ -13,7 +13,7 @@ class Rechargement {
 
   String phoneNumber;
   String date;
-  int amount;
+  String amount;
 
   factory Rechargement.fromJson(Map<String, dynamic> json) => Rechargement(
     amount: json["amont"],

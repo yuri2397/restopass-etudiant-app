@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:restopass/models/Passage.dart';
-
+import 'package:intl/intl.dart';
 class CardItemPassage extends StatefulWidget {
   final Passage passage;
 
@@ -53,7 +53,9 @@ class _CardItemPassageState extends State<CardItemPassage> {
                         height: 5,
                       ),
                       Text(
-                        widget.passage.date,
+                        DateFormat.yMMMMd('fr_FR').format(
+                            DateFormat("yyyy-MM-dd")
+                                .parse(widget.passage.date)),
                         style: TextStyle(
                           fontFamily: "Poppins Light",
                           fontSize: 12,

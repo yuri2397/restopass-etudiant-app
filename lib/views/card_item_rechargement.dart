@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:restopass/constants.dart';
 import 'package:restopass/models/Rechargement.dart';
 import 'package:restopass/models/Rechargement.dart';
+import 'package:intl/intl.dart';
 
 class CardItemRechargement extends StatefulWidget {
   final Rechargement rechargement;
@@ -30,9 +32,9 @@ class _CardItemRechargementState extends State<CardItemRechargement> {
               Row(
                 children: [
                   Icon(
-                    Icons.free_breakfast_rounded,
+                    Icons.credit_card_rounded,
                     size: 30,
-                    color: Colors.blue,
+                    color: kPrimaryColor,
                   ),
                   SizedBox(
                     width: 10,
@@ -53,7 +55,9 @@ class _CardItemRechargementState extends State<CardItemRechargement> {
                         height: 5,
                       ),
                       Text(
-                        widget.rechargement.date,
+                        DateFormat.yMMMMd('fr_FR').format(
+                            DateFormat("yyyy-MM-dd")
+                                .parse(widget.rechargement.date)),
                         style: TextStyle(
                           fontFamily: "Poppins Light",
                           fontSize: 12,
