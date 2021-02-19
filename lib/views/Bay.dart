@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:restopass/constants.dart';
 import 'package:restopass/models/ApiResponse.dart';
 import 'package:http/http.dart' as http;
+import 'package:restopass/models/PaydunyaResponse.dart';
 import 'package:restopass/utils/SharedPref.dart';
 import 'package:restopass/views/paydunya.dart';
 
@@ -119,10 +120,22 @@ class _BayState extends State<Bay> {
                   child: _buttonLoginChild(context),
                   onPressed: () async {
                     if (_validate()) {
+                      setState(() {
+                        _isLoad = true;
+                      });
                       print("SEND REQUEST");
-                      String res = await _sendRequest(_tel, _montant);
-                      print("RESSSSSSSS : " + res);
-                      Navigator.of(context).push(MaterialPageRoute(builder:(contenxt) => PayDunya(res)));
+                      PayDunyaResponse res = await _sendRequest(_tel, _montant);
+                      setState(() {
+                        _isLoad = false;
+                      });
+                      print("RES : " + res.toString());
+                      if (res.responseText == "error") {
+                        final snackBar =
+                            SnackBar(content: Text(res.responseText));
+                        Scaffold.of(context).showSnackBar(snackBar);
+                      } else
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (contenxt) => PayDunya(res.responseText)));
                     }
                   },
                   shape: new RoundedRectangleBorder(
@@ -139,10 +152,10 @@ class _BayState extends State<Bay> {
     return true;
   }
 
-  Future<String> _sendRequest(String tel, String montant) async {
+  Future<PayDunyaResponse> _sendRequest(String tel, String montant) async {
     String url = BASE_URL + '/api/pay';
     String accessToken = await new SharedPref().getUserAccessToken();
-    
+
     Map<String, String> requestHeaders = {
       'Content-type': 'application/json',
       'Accept': 'application/json',
@@ -154,13 +167,21 @@ class _BayState extends State<Bay> {
       "amount": montant,
     });
 
-    String res;
+    PayDunyaResponse res;
 
     try {
-      final response = await http.post(url, body: body, headers: requestHeaders);
-      res =response.body;
+      final response =
+          await http.post(url, body: body, headers: requestHeaders);
+      if (response.statusCode == 200) {
+        final String responseString = response.body;
+        res = payDunyaResponseFromJson(responseString);
+      }
     } catch (e) {
-      res = e.toString();
+      res = PayDunyaResponse(
+          description: 'error',
+          responseCode: 'error',
+          responseText: 'error',
+          token: 'error');
     } finally {
       // ignore: control_flow_in_finally
       return res;

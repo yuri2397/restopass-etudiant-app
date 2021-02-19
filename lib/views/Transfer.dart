@@ -135,10 +135,20 @@ class _TransferState extends State<Transfer> {
           child: SingleChildScrollView(
               child: Column(
             mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Container(child: Image.asset("assets/images/achat.jpg")),
               Container(
-                  margin: EdgeInsets.only(left: 10, right: 10, top: 5),
+                margin: EdgeInsets.only(left: 30.0, right: 30.0),
+                child: Text(
+                  "Transfert\nD'argent",
+                  style: TextStyle(fontFamily: "Poppins Bold", fontSize: 20),
+                ),
+              ),
+              Container(
+                  margin: EdgeInsets.only(
+                      left: 30.0, right: 30.0, top: 20.0, bottom: 10.0),
                   child: Form(
                     child: Column(
                       children: <Widget>[
@@ -151,6 +161,7 @@ class _TransferState extends State<Transfer> {
                               fontWeight: FontWeight.w300),
                           keyboardType: TextInputType.phone,
                           decoration: InputDecoration(
+                            border: OutlineInputBorder(),
                             labelText: "N° dossier destinataire",
                             errorText: _numberError ? _desErrorMessage : null,
                           ),
@@ -159,7 +170,7 @@ class _TransferState extends State<Transfer> {
                           },
                         ),
                         SizedBox(
-                          height: 10,
+                          height: 20,
                         ),
                         TextFormField(
                           autofocus: false,
@@ -170,6 +181,7 @@ class _TransferState extends State<Transfer> {
                               fontWeight: FontWeight.w300),
                           keyboardType: TextInputType.phone,
                           decoration: InputDecoration(
+                            border: OutlineInputBorder(),
                             labelText: "Montant",
                             errorText:
                                 _montantError ? _montantErrorMessage : null,
@@ -185,10 +197,7 @@ class _TransferState extends State<Transfer> {
                 height: 45,
                 width: size.width,
                 margin: EdgeInsets.only(
-                  top: 10,
-                  left: 10,
-                  right: 10,
-                ),
+                    left: 30.0, right: 30.0, top: 20.0, bottom: 10.0),
                 child: RaisedButton(
                   elevation: 3,
                   textColor: Colors.white,
@@ -221,13 +230,17 @@ class _TransferState extends State<Transfer> {
                       if (res.error == false) {
                         await showMaterialModalBottomSheet<void>(
                           isDismissible: false,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          backgroundColor: Colors.white,
                           enableDrag: false,
                           elevation: 10,
                           context: context,
                           builder: (context) {
                             return SingleChildScrollView(
                               controller: ModalScrollController.of(context),
-                              child: Container(child: recipientInfo(res)),
+                              child: recipientInfo(res),
                             );
                           },
                         );
@@ -358,8 +371,7 @@ class _TransferState extends State<Transfer> {
   Widget recipientInfo(
     Recipient res,
   ) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 20),
+    return Material(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.start,
