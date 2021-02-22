@@ -104,7 +104,7 @@ class _TransferState extends State<Transfer> {
   bool _numberError = false, _montantError = false;
   static bool _isConf = false;
   SharedPref _pref;
-
+  TextEditingController numberController = TextEditingController();
   @override
   void initState() {
     super.initState();
@@ -138,14 +138,6 @@ class _TransferState extends State<Transfer> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(child: Image.asset("assets/images/achat.jpg")),
-              Container(
-                margin: EdgeInsets.only(left: 30.0, right: 30.0),
-                child: Text(
-                  "Transfert\nD'argent",
-                  style: TextStyle(fontFamily: "Poppins Bold", fontSize: 20),
-                ),
-              ),
               Container(
                   margin: EdgeInsets.only(
                       left: 30.0, right: 30.0, top: 20.0, bottom: 10.0),
@@ -153,6 +145,7 @@ class _TransferState extends State<Transfer> {
                     child: Column(
                       children: <Widget>[
                         TextFormField(
+                          controller: numberController,
                           autofocus: false,
                           cursorColor: kPrimaryColor,
                           style: TextStyle(
@@ -161,7 +154,6 @@ class _TransferState extends State<Transfer> {
                               fontWeight: FontWeight.w300),
                           keyboardType: TextInputType.phone,
                           decoration: InputDecoration(
-                            border: OutlineInputBorder(),
                             labelText: "N° dossier destinataire",
                             errorText: _numberError ? _desErrorMessage : null,
                           ),
@@ -181,7 +173,6 @@ class _TransferState extends State<Transfer> {
                               fontWeight: FontWeight.w300),
                           keyboardType: TextInputType.phone,
                           decoration: InputDecoration(
-                            border: OutlineInputBorder(),
                             labelText: "Montant",
                             errorText:
                                 _montantError ? _montantErrorMessage : null,
@@ -372,6 +363,7 @@ class _TransferState extends State<Transfer> {
     Recipient res,
   ) {
     return Material(
+      color: Colors.white,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.start,

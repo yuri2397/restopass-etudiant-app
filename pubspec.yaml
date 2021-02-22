@@ -25,7 +25,7 @@ dependencies:
   fluttertoast: ^7.1.6
   material_snackbar: ^1.2.1
   webview_flutter: ^1.0.7
-
+  flutter_webview_plugin: ^0.3.11
 dev_dependencies:
   flutter_test:
     sdk: flutter

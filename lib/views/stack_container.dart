@@ -32,7 +32,6 @@ class _StackContainerState extends State<StackContainer> {
   @override
   void didUpdateWidget(StackContainer oldWidget) {
     super.didUpdateWidget(oldWidget);
-    onPayTop();
   }
 
   @override
@@ -74,6 +73,7 @@ class _StackContainerState extends State<StackContainer> {
                               children: [
                                 Row(
                                   children: [
+                                    // Code QR
                                     Align(
                                       alignment: Alignment.centerLeft,
                                       child: InkWell(
@@ -96,6 +96,7 @@ class _StackContainerState extends State<StackContainer> {
                                       ),
                                     ),
                                     SizedBox(width: 20),
+                                    // Prénom et Nom
                                     Text(
                                       _fullName,
                                       style: TextStyle(
@@ -106,11 +107,12 @@ class _StackContainerState extends State<StackContainer> {
                                   ],
                                 ),
                                 SizedBox(height: 20),
+                                // Solde
                                 Align(
                                   alignment: Alignment.centerLeft,
                                   child: InkWell(
                                     onTap: () async {
-                                      onPayTop();
+                                      onPayTap();
                                     },
                                     child: Text(
                                       widget.user.pay.toString() + ' FCFA',
@@ -139,7 +141,7 @@ class _StackContainerState extends State<StackContainer> {
     );
   }
 
-  onPayTop() async {
+  onPayTap() async {
     setState(() {
       _isReload = true;
     });
@@ -151,6 +153,7 @@ class _StackContainerState extends State<StackContainer> {
           margin: EdgeInsets.fromLTRB(20, 0, 20, 0),
           child: Material(
             elevation: 10,
+            color: Colors.white,
             borderRadius: BorderRadius.circular(8.0),
             child: Container(
               height: 100,
@@ -197,6 +200,7 @@ class _StackContainerState extends State<StackContainer> {
           margin: EdgeInsets.fromLTRB(20, 0, 20, 0),
           child: Material(
             elevation: 10,
+            color: Colors.white,
             borderRadius: BorderRadius.circular(8.0),
             child: Container(
               height: 100,
@@ -268,7 +272,6 @@ Future<int> reloadPay() async {
 
   try {
     final response = await http.get(url, headers: requestHeaders);
-    print("RESSSSS : " + response.statusCode.toString());
     if (response.statusCode == 200) {
       pay = int.parse(response.body);
     } else {

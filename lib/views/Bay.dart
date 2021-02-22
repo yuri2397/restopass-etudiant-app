@@ -27,7 +27,7 @@ class _BayState extends State<Bay> {
   String _telErrorMessage = "Tel Error";
   bool _telHasErrors = false;
   String _tel;
-
+  final _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -66,47 +66,48 @@ class _BayState extends State<Bay> {
                     margin: EdgeInsets.only(
                         left: 30.0, right: 30.0, top: 20.0, bottom: 10.0),
                     child: Form(
+                        key: _formKey,
                         child: Column(
-                      children: [
-                        TextFormField(
-                          autofocus: false,
-                          cursorColor: kPrimaryColor,
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontFamily: "Poppins Light",
-                              fontWeight: FontWeight.w300),
-                          keyboardType: TextInputType.phone,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: "Numéro de téléphone",
-                            errorText:
-                                _telHasErrors ? _montantErrorMessage : null,
-                          ),
-                          onChanged: (value) {
-                            _tel = value;
-                          },
-                        ),
-                        SizedBox(height: 20),
-                        TextFormField(
-                          autofocus: false,
-                          cursorColor: kPrimaryColor,
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontFamily: "Poppins Light",
-                              fontWeight: FontWeight.w300),
-                          keyboardType: TextInputType.phone,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: "Montant de rechargement",
-                            errorText:
-                                _montantError ? _montantErrorMessage : null,
-                          ),
-                          onChanged: (value) {
-                            _montant = value;
-                          },
-                        ),
-                      ],
-                    )),
+                          children: [
+                            TextFormField(
+                              autofocus: false,
+                              cursorColor: kPrimaryColor,
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontFamily: "Poppins Light",
+                                  fontWeight: FontWeight.w300),
+                              keyboardType: TextInputType.number,
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(),
+                                labelText: "Numéro de téléphone",
+                                errorText:
+                                    _telHasErrors ? _telErrorMessage : null,
+                              ),
+                              onChanged: (value) {
+                                _tel = value;
+                              },
+                            ),
+                            SizedBox(height: 20),
+                            TextFormField(
+                              autofocus: false,
+                              cursorColor: kPrimaryColor,
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontFamily: "Poppins Light",
+                                  fontWeight: FontWeight.w300),
+                              keyboardType: TextInputType.phone,
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(),
+                                labelText: "Montant de rechargement",
+                                errorText:
+                                    _montantError ? _montantErrorMessage : null,
+                              ),
+                              onChanged: (value) {
+                                _montant = value;
+                              },
+                            ),
+                          ],
+                        )),
                   )),
               Container(
                 height: 45,
@@ -149,7 +150,41 @@ class _BayState extends State<Bay> {
   }
 
   bool _validate() {
-    return true;
+    setState(() {
+      _telHasErrors = _montantError = false;
+    });
+    bool value = true;
+    Pattern pattern = r'^(7?)[0-9]{9}$';
+    RegExp regex = new RegExp(pattern);
+    if (_montant == null || _montant.length == 0) {
+      setState(() {
+        _montantError = true;
+        _montantErrorMessage = "Montant requis.";
+      });
+      value = false;
+    } else
+      int.parse(_montant, onError: (string) {
+        setState(() {
+          _montantError = true;
+          _montantErrorMessage = "Montant invalide.";
+        });
+        value = false;
+        return -1;
+      });
+    if (_tel == null || _tel.length == 0) {
+      setState(() {
+        _telHasErrors = true;
+        _telErrorMessage = "Téléphone requis.";
+      });
+      value = false;
+    } else if (!regex.hasMatch(_tel) || _tel.length != 9) {
+      setState(() {
+        _telHasErrors = true;
+        _telErrorMessage = "Téléphone invalide.";
+      });
+      value = false;
+    }
+    return value;
   }
 
   Future<PayDunyaResponse> _sendRequest(String tel, String montant) async {
@@ -172,6 +207,7 @@ class _BayState extends State<Bay> {
     try {
       final response =
           await http.post(url, body: body, headers: requestHeaders);
+      print("RRRR : " + response.body);
       if (response.statusCode == 200) {
         final String responseString = response.body;
         res = payDunyaResponseFromJson(responseString);

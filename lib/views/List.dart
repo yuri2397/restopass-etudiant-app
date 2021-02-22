@@ -200,6 +200,7 @@ class _ListTransferState extends State<ListTransfer>
             print("TRANS : " + snapshot.data.lenght);
             _controller.forward(from: 0.0);
             return Material(
+              color: Colors.white,
               child: Container(
                 margin: const EdgeInsets.only(top: 36.0),
                 width: double.infinity,
@@ -257,6 +258,7 @@ class _ListTransferState extends State<ListTransfer>
           if (snapshot.hasError || !snapshot.hasData) {
             _controller.forward(from: 0.0);
             return Material(
+              color: Colors.white,
               child: Container(
                 margin: const EdgeInsets.only(top: 36.0),
                 width: double.infinity,
@@ -314,6 +316,7 @@ class _ListTransferState extends State<ListTransfer>
           if (snapshot.hasError || !snapshot.hasData) {
             _controller.forward(from: 0.0);
             return Material(
+              color: Colors.white,
               child: Container(
                 margin: const EdgeInsets.only(top: 36.0),
                 width: double.infinity,
