@@ -4,13 +4,12 @@ import 'package:restopass/utils/SharedPref.dart';
 import 'package:restopass/views/Code.dart';
 import 'package:restopass/views/Profile.dart';
 import 'package:http/http.dart' as http;
-
+import 'package:flutter_money_formatter/flutter_money_formatter.dart';
 import '../constants.dart';
 
 class StackContainer extends StatefulWidget {
   final User user;
-
-  const StackContainer({Key key, this.user}) : super(key: key);
+  StackContainer({Key key, this.user}) : super(key: key);
 
   @override
   _StackContainerState createState() => _StackContainerState();
@@ -22,17 +21,31 @@ class _StackContainerState extends State<StackContainer> {
   Widget _alert;
   Size size;
   bool _isReload = false;
+  MoneyFormatterOutput pay;
+
   @override
   void initState() {
     super.initState();
     _alert = Container();
     _pref = SharedPref();
+    pay = FlutterMoneyFormatter(
+            amount: widget.user.pay.toDouble(),
+            settings: MoneyFormatterSettings(
+                symbol: 'XOF',
+                thousandSeparator: '.',
+                decimalSeparator: ',',
+                symbolAndNumberSeparator: ' ',
+                fractionDigits: 0,
+                compactFormatType: CompactFormatType.short))
+        .output;
   }
 
   @override
   void didUpdateWidget(StackContainer oldWidget) {
     super.didUpdateWidget(oldWidget);
   }
+
+  double reciprocal(double d) => 1 / d;
 
   @override
   Widget build(BuildContext context) {
@@ -115,7 +128,7 @@ class _StackContainerState extends State<StackContainer> {
                                       onPayTap();
                                     },
                                     child: Text(
-                                      widget.user.pay.toString() + ' FCFA',
+                                      pay.symbolOnRight,
                                       style: TextStyle(
                                           fontSize: 30,
                                           fontFamily: 'Poppins Meduim',
@@ -261,7 +274,6 @@ Future<int> reloadPay() async {
   String url = BASE_URL + '/api/user/bay';
   SharedPref sharedPref = new SharedPref();
   String accessToken = await sharedPref.getUserAccessToken();
-
   Map<String, String> requestHeaders = {
     'Content-Type': 'application/json',
     'Accept': 'application/json',

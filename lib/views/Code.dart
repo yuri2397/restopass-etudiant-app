@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:qr_flutter/qr_flutter.dart';
-import 'package:restopass/constants.dart';
+import 'package:pretty_qr_code/pretty_qr_code.dart';
 
 class Code extends StatefulWidget {
   static const String routeName = '/qrcode';
@@ -30,7 +29,7 @@ class _CodeState extends State<Code> {
                   fontWeight: FontWeight.bold)),
         ),
         body: Center(
-        child: Column(
+            child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
@@ -38,50 +37,42 @@ class _CodeState extends State<Code> {
             Container(
               child: Text(
                 'Code QR',
-                style: TextStyle(
-                  fontFamily: 'Poppins Light',
-                  fontSize: 15
-                ),
+                style: TextStyle(fontFamily: 'Poppins Light', fontSize: 15),
                 textAlign: TextAlign.center,
               ),
             ),
             Container(
               child: Text(
                 'RestoPass',
-                style: TextStyle(
-                  fontFamily: 'Poppins Bold',
-                  fontSize: 20
-                ),
+                style: TextStyle(fontFamily: 'Poppins Bold', fontSize: 20),
                 textAlign: TextAlign.center,
               ),
             ),
-            SizedBox(height: 10,),
+            SizedBox(
+              height: 10,
+            ),
             Card(
               elevation: 10,
               child: Container(
                   width: size.width * 0.6,
                   height: size.width * 0.6,
                   alignment: Alignment.center,
-                  child: QrImage(
+                  child: PrettyQr(
                     data: widget.number,
-                    size: size.width * 0.4,
-                  )
-                ),
+                    typeNumber: 3,
+                    roundEdges: true,
+                    size: 200,
+                  )),
             ),
             Container(
               padding: EdgeInsets.all(30),
               child: Text(
                 'Votre code QR est privé. Si vous le partagez avec quelqu\'un, il peut l\'utiliser pour accéder au resto.',
-                style: TextStyle(
-                  fontFamily: 'Poppins Light',
-                  fontSize: 15
-                ),
+                style: TextStyle(fontFamily: 'Poppins Light', fontSize: 15),
                 textAlign: TextAlign.center,
               ),
             ),
           ],
-        )
-      )
-    );
+        )));
   }
 }

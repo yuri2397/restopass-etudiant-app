@@ -197,7 +197,6 @@ class _ListTransferState extends State<ListTransfer>
       builder: (BuildContext context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           if (snapshot.hasError || !snapshot.hasData) {
-            print("TRANS : " + snapshot.data.lenght);
             _controller.forward(from: 0.0);
             return Material(
               color: Colors.white,
@@ -218,14 +217,21 @@ class _ListTransferState extends State<ListTransfer>
                             size: 30,
                           ),
                           SizedBox(height: 15),
+                          Text("Vérifier votre connexion internet.",
+                              style: TextStyle(
+                                  fontFamily: "Poppins Light",
+                                  color: Colors.black)),
+                          SizedBox(height: 15),
                           FlatButton(
+                            color: kPrimaryColor,
+                            textColor: Colors.white,
                             onPressed: () {
                               setState(() {
                                 myFuture = getList();
                               });
                             },
                             child: Text(
-                              "TRANSFERT",
+                              "Réessayer",
                             ),
                           )
                         ]),
@@ -276,14 +282,21 @@ class _ListTransferState extends State<ListTransfer>
                             size: 30,
                           ),
                           SizedBox(height: 15),
+                          Text("Vérifier votre connexion internet.",
+                              style: TextStyle(
+                                  fontFamily: "Poppins Light",
+                                  color: Colors.black)),
+                          SizedBox(height: 15),
                           FlatButton(
+                            color: kPrimaryColor,
+                            textColor: Colors.white,
                             onPressed: () {
                               setState(() {
                                 myPassage = getPassage();
                               });
                             },
                             child: Text(
-                              "PASSAGE",
+                              "Réessayer",
                             ),
                           )
                         ]),
@@ -334,7 +347,14 @@ class _ListTransferState extends State<ListTransfer>
                             size: 30,
                           ),
                           SizedBox(height: 15),
+                          Text("Vérifier votre connexion internet.",
+                              style: TextStyle(
+                                  fontFamily: "Poppins Light",
+                                  color: Colors.black)),
+                          SizedBox(height: 15),
                           FlatButton(
+                            color: kPrimaryColor,
+                            textColor: Colors.white,
                             onPressed: () {
                               setState(() {
                                 myRechargement = getRechargement();

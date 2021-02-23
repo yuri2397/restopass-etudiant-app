@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:restopass/constants.dart';
 import 'package:restopass/models/ApiResponse.dart';
 import 'package:restopass/models/Recipient.dart';
@@ -103,6 +104,16 @@ class _CustomDialogState extends State<CustomDialog> {
                               _isLoad = true;
                             });
                             ApiResponse res = await widget.onClick(true);
+                            if (res == null) {
+                              Fluttertoast.showToast(
+                                  backgroundColor: Colors.red,
+                                  textColor: Colors.white,
+                                  msg: "Vérifier votre connexion internet.",
+                                  toastLength: Toast.LENGTH_LONG,
+                                  gravity: ToastGravity.TOP,
+                                  timeInSecForIosWeb: 1);
+                              return;
+                            }
                             print("FINISH : " + res.message);
                             if (res.error == true) {
                               setState(() {
@@ -119,7 +130,7 @@ class _CustomDialogState extends State<CustomDialog> {
                                     'assets/images/success_check.gif');
                               });
                             }
-                            Future.delayed(const Duration(seconds: 3),
+                            Future.delayed(const Duration(seconds: 2),
                                 () => Navigator.pop(context));
                           },
                         )

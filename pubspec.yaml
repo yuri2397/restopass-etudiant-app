@@ -26,6 +26,9 @@ dependencies:
   material_snackbar: ^1.2.1
   webview_flutter: ^1.0.7
   flutter_webview_plugin: ^0.3.11
+  pretty_qr_code: ^1.0.1
+  flutter_barcode_scanner: ^1.0.2
+  flutter_money_formatter: ^0.8.3
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -2,9 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ui';
 
+import 'package:flutter/material.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'package:barcode_scan/barcode_scan.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -15,15 +17,9 @@ import 'package:restopass/models/User.dart';
 import 'package:restopass/utils/CustomDialog.dart';
 import 'package:restopass/utils/SharedPref.dart';
 import 'package:restopass/views/Bay.dart';
-import 'package:restopass/views/Emprunt.dart';
-import 'package:restopass/views/Login.dart';
-import 'package:restopass/views/Code.dart';
 import 'package:restopass/views/Options.dart';
-import 'package:restopass/views/Setting.dart';
-import 'package:restopass/views/Transfer.dart';
 import 'package:restopass/views/stack_container.dart';
 import 'package:sleek_circular_slider/sleek_circular_slider.dart';
-
 import '../constants.dart';
 import 'List.dart';
 
@@ -43,10 +39,22 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   bool _close = false;
   TextEditingController numberController = TextEditingController();
   User _user;
+  // ignore: unused_field
   bool _montantError;
+  // ignore: unused_field
   String _montantErrorMessage;
   final _formKey = GlobalKey<FormState>();
+  final _formEmpruntKey = GlobalKey<FormState>();
+  bool _reloadPay = false;
+  TextEditingController _numberController = TextEditingController();
+  String _montantEmprunt;
+  bool _numberHasError = false;
 
+  String _numberErrorMessage = "";
+
+  bool _empruntHasError = false;
+
+  String _empruntErrorMessage;
   @override
   void initState() {
     myFuture = getUser();
@@ -62,6 +70,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     _controller.dispose();
     super.dispose();
   }
+
 
   @override
   Widget build(BuildContext context) => getUserData();
@@ -190,8 +199,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                       text: "Emprunt",
                       imagePath: "assets/images/lifeguard.svg",
                       onTap: () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) => Emprunt()));
+                        _showBottomSheetEmprunt(context);
                       },
                     ),
                     SizedBox(width: 20),
@@ -279,137 +287,396 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     );
   }
 
+  void _showBottomSheetEmprunt(context) {
+    Size size = MediaQuery.of(context).size;
+    showModalBottomSheet(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(16.0))),
+        backgroundColor: Colors.transparent,
+        context: context,
+        isDismissible: false,
+        isScrollControlled: true,
+        builder: (BuildContext context) {
+          return StatefulBuilder(
+              builder: (BuildContext context, StateSetter mystate) => Container(
+                  margin: EdgeInsets.all(8.0),
+                  child: Material(
+                      elevation: 10,
+                      borderRadius: BorderRadius.circular(8),
+                      color: Colors.white,
+                      child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 18),
+                          child: Form(
+                            key: _formEmpruntKey,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  margin: EdgeInsets.only(top: 15),
+                                  child: Text("Emprunt",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 20,
+                                          fontFamily: "Poppins Light",
+                                          fontWeight: FontWeight.bold)),
+                                ),
+                                SizedBox(height: 10),
+                                Container(
+                                  child: TextFormField(
+                                    keyboardType: TextInputType.number,
+                                    cursorColor: kPrimaryColor,
+                                    style: TextStyle(
+                                        color: Colors.black,
+                                        fontFamily: "Poppins Light",
+                                        fontWeight: FontWeight.w300),
+                                    decoration: InputDecoration(
+                                        errorText: _empruntHasError
+                                            ? _empruntErrorMessage
+                                            : null,
+                                        hintText: 'Montant à emprunter'),
+                                    autofocus: false,
+                                    validator: (String value) {
+                                      if (value.isEmpty) {
+                                        return 'Montant requis.';
+                                      }
+                                      int test =
+                                          int.parse(value, onError: (string) {
+                                        return -1;
+                                      });
+                                      print("TEST : $test");
+                                      if (test <= -1) {
+                                        return "Montant invalide.";
+                                      }
+                                      if (test < 50) {
+                                        return "Montant minimum est 50 FCFA";
+                                      }
+                                      if (test % 50 != 0) {
+                                        return "Montant n'est pas un multiple de 50";
+                                      }
+                                      return null;
+                                    },
+                                    onChanged: (String value) {
+                                      _montantEmprunt = value;
+                                    },
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                      bottom: MediaQuery.of(context)
+                                          .viewInsets
+                                          .bottom),
+                                  child: Container(
+                                    margin:
+                                        EdgeInsets.only(top: 15, bottom: 20),
+                                    child: FlatButton(
+                                      color: kPrimaryColor,
+                                      child: Text("Valider",
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontFamily: "Poppins Light")),
+                                      onPressed: () async {
+                                        if (_formEmpruntKey.currentState
+                                            .validate()) {
+                                          showLoaderDialog(context);
+                                          ApiResponse res =
+                                              await empruntRequest(
+                                                  _montantEmprunt);
+                                          print("EMPRUNT RES : " + res.message);
+                                          Navigator.pop(context);
+                                          if (res.error == true) {
+                                            mystate(() {
+                                              _empruntErrorMessage =
+                                                  res.message;
+                                              _empruntHasError = true;
+                                            });
+                                          } else {
+                                            mystate(() {
+                                              _empruntErrorMessage =
+                                                  res.message;
+                                              _empruntHasError = false;
+                                              _user.pay +=
+                                                  int.parse(_montantEmprunt,
+                                                      onError: (value) {
+                                                return 0;
+                                              });
+                                            });
+                                            await _showSuccessDialog(
+                                                res.message);
+                                            Navigator.of(context).pop();
+                                          }
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )))));
+        });
+  }
+
+  Future<void> _showSuccessDialog(String message) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          contentPadding: EdgeInsets.fromLTRB(5, 5, 5, 5),
+          content: Container(
+              padding: EdgeInsets.only(top: 20),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Align(
+                      alignment: Alignment.topCenter,
+                      child: Icon(
+                        Icons.check_circle_outline_rounded,
+                        color: Colors.green,
+                        size: 40,
+                      )),
+                  SizedBox(height: 10),
+                  Padding(
+                    padding: EdgeInsets.only(left: 10, right: 10),
+                    child: Text(
+                      message,
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontFamily: 'Poppins Light',
+                          fontSize: 13),
+                      textAlign: TextAlign.center,
+                    ),
+                  )
+                ],
+              )),
+          actions: <Widget>[
+            TextButton(
+              child: Text("Merci",
+                  style: TextStyle(
+                    color: Colors.black,
+                  )),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            )
+          ],
+        );
+      },
+    );
+  }
+
   void _showBottomSheetTransfer(context) {
     Size size = MediaQuery.of(context).size;
     showModalBottomSheet(
         shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(16.0))),
-        backgroundColor: Colors.white,
+            borderRadius: BorderRadius.all(Radius.circular(16.0))),
+        backgroundColor: Colors.transparent,
         context: context,
+        isDismissible: false,
         isScrollControlled: true,
-        builder: (context) => Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 18),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Container(
-                      margin: EdgeInsets.only(top: 15),
-                      child: Text("Transfert",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 20,
-                              fontFamily: "Poppins Light",
-                              fontWeight: FontWeight.bold)),
-                    ),
-                    SizedBox(height: 10),
-                    TextFormField(
-                      keyboardType: TextInputType.number,
-                      cursorColor: kPrimaryColor,
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontFamily: "Poppins Light",
-                          fontWeight: FontWeight.w300),
-                      decoration: InputDecoration(hintText: 'Déstinataire'),
-                      autofocus: false,
-                      validator: (String value) {
-                        Pattern pattern = r'^[0-9]{11}$';
-                        RegExp regex = new RegExp(pattern);
-                        if (value.isEmpty) {
-                          return 'N° de dossier requis.';
-                        }
-                        if (!regex.hasMatch(value)) {
-                          return "N° de dossier invalide.";
-                        }
-                        if (_user.number.toString() == value) {
-                          return "Donner un autre numéro.";
-                        }
-                        return null;
-                      },
-                      onChanged: (String value) {
-                        _desNumber = value;
-                      },
-                    ),
-                    SizedBox(height: 10),
-                    TextFormField(
-                      keyboardType: TextInputType.number,
-                      cursorColor: kPrimaryColor,
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontFamily: "Poppins Light",
-                          fontWeight: FontWeight.w300),
-                      decoration: InputDecoration(hintText: 'Montant'),
-                      autofocus: false,
-                      validator: (String value) {
-                        if (value.isEmpty) {
-                          return 'Montant requis.';
-                        }
-                        int test = int.parse(value, onError: (string) {
-                          return -1;
-                        });
-                        print("TEST : $test");
-                        if (test <= -1) {
-                          return "Montant invalide.";
-                        }
-                        if (test < 50) {
-                          return "Montant minimum est 50f";
-                        }
-                        if (test % 50 != 0) {
-                          return "Montant n'est pas un multiple de 50";
-                        }
-                        if (_user.pay < test) {
-                          return "Montant insiffusant";
-                        }
-                        return null;
-                      },
-                      onChanged: (String value) {
-                        _montant = value;
-                      },
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(
-                          bottom: MediaQuery.of(context).viewInsets.bottom),
-                      child: Container(
-                        margin: EdgeInsets.only(top: 15, bottom: 20),
-                        child: RaisedButton(
-                          color: kPrimaryColor,
-                          child: Text("Valider",
+        builder: (BuildContext context) {
+          return StatefulBuilder(
+            builder: (BuildContext context, StateSetter mystate) => Container(
+              margin: EdgeInsets.all(8.0),
+              child: Material(
+                elevation: 10,
+                borderRadius: BorderRadius.circular(8),
+                color: Colors.white,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 18),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Container(
+                          margin: EdgeInsets.only(top: 15),
+                          child: Text("Transfert",
+                              textAlign: TextAlign.center,
                               style: TextStyle(
-                                  color: Colors.white,
-                                  fontFamily: "Poppins Light")),
-                          onPressed: () async {
-                            if (_formKey.currentState.validate()) {
-                              showLoaderDialog(context);
-                              Recipient recipient = await transfer(_desNumber);
-                              Navigator.pop(context);
-                              if (recipient == null) {
-                                print("NULLLLLLLLLLLLLLLLLLLLLL");
-                                Fluttertoast.showToast(
-                                  backgroundColor: Colors.red,
-                                  textColor: Colors.white,
-                                    msg: "Vérifier votre connexion internet.",
-                                    toastLength: Toast.LENGTH_LONG,
-                                    gravity: ToastGravity.TOP,
-                                    timeInSecForIosWeb: 1);
-                              } else
-                                _transferConfDialog(
-                                    context, recipient, _montant);
-                            }
-                          },
+                                  color: Colors.black,
+                                  fontSize: 20,
+                                  fontFamily: "Poppins Light",
+                                  fontWeight: FontWeight.bold)),
                         ),
-                      ),
+                        SizedBox(height: 10),
+                        Container(
+                          width: size.width,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Container(
+                                width: size.width * .7,
+                                child: TextFormField(
+                                  controller: _numberController,
+                                  keyboardType: TextInputType.number,
+                                  cursorColor: kPrimaryColor,
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontFamily: "Poppins Light",
+                                      fontWeight: FontWeight.w300),
+                                  decoration: InputDecoration(
+                                      errorText: _numberHasError
+                                          ? _numberErrorMessage
+                                          : null,
+                                      hintText: 'Déstinataire'),
+                                  autofocus: false,
+                                  validator: (String value) {
+                                    Pattern pattern = r'^[0-9]{11}$';
+                                    RegExp regex = new RegExp(pattern);
+                                    if (value.isEmpty) {
+                                      return 'N° de dossier requis.';
+                                    }
+                                    if (!regex.hasMatch(value)) {
+                                      return "N° de dossier invalide.";
+                                    }
+                                    if (_user.number.toString() == value) {
+                                      return "Donner un autre numéro.";
+                                    }
+                                    return null;
+                                  },
+                                  onChanged: (String value) {
+                                    _desNumber = value;
+                                  },
+                                ),
+                              ),
+                              Container(
+                                child: Material(
+                                  elevation: 3,
+                                  borderRadius: BorderRadius.circular(50),
+                                  color: Colors.white,
+                                  child: InkWell(
+                                    onTap: () async {
+                                      String number = await scanQR();
+                                      print(number);
+                                      if (number != "-1") {
+                                        if (number.length == 11) {
+                                          mystate(() {
+                                            _numberHasError = false;
+                                          });
+                                          _numberController.text = number;
+                                        } else {
+                                          print("INVALIDE");
+                                          mystate(() {
+                                            _numberErrorMessage =
+                                                "QR code invalide.";
+                                            _numberHasError = true;
+                                            _numberController.text = "";
+                                          });
+                                        }
+                                      }
+                                    },
+                                    child: CircleAvatar(
+                                      child: Icon(Icons.qr_code,
+                                          color: kPrimaryColor),
+                                      backgroundColor: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        Container(
+                          width: size.width * .7,
+                          child: TextFormField(
+                            keyboardType: TextInputType.number,
+                            cursorColor: kPrimaryColor,
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontFamily: "Poppins Light",
+                                fontWeight: FontWeight.w300),
+                            decoration: InputDecoration(hintText: 'Montant'),
+                            autofocus: false,
+                            validator: (String value) {
+                              if (value.isEmpty) {
+                                return 'Montant requis.';
+                              }
+                              int test = int.parse(value, onError: (string) {
+                                return -1;
+                              });
+                              print("TEST : $test");
+                              if (test <= -1) {
+                                return "Montant invalide.";
+                              }
+                              if (test < 50) {
+                                return "Montant minimum est 50 FCFA";
+                              }
+                              if (test > 10000) {
+                                return "Montant maximum 10.000 FCFA";
+                              }
+                              if (test % 50 != 0) {
+                                return "Montant n'est pas un multiple de 50";
+                              }
+                              if (_user.pay < test) {
+                                return "Montant insiffusant";
+                              }
+                              return null;
+                            },
+                            onChanged: (String value) {
+                              _montant = value;
+                            },
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(
+                              bottom: MediaQuery.of(context).viewInsets.bottom),
+                          child: Container(
+                            margin: EdgeInsets.only(top: 15, bottom: 20),
+                            child: FlatButton(
+                              color: kPrimaryColor,
+                              child: Text("Valider",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontFamily: "Poppins Light")),
+                              onPressed: () async {
+                                if (_formKey.currentState.validate()) {
+                                  showLoaderDialog(context);
+                                  Recipient recipient =
+                                      await transfer(_desNumber);
+                                  Navigator.pop(context);
+                                  if (recipient == null) {
+                                    Fluttertoast.showToast(
+                                        backgroundColor: Colors.red,
+                                        textColor: Colors.white,
+                                        msg:
+                                            "Vérifier votre connexion internet.",
+                                        toastLength: Toast.LENGTH_LONG,
+                                        gravity: ToastGravity.TOP,
+                                        timeInSecForIosWeb: 1);
+                                  } else if (recipient.lastName == "422") {
+                                    setState(() {
+                                      _numberHasError = true;
+                                      _numberErrorMessage = recipient.firstName;
+                                    });
+                                  } else {
+                                    setState(() {
+                                      _numberHasError = false;
+                                    });
+                                    Navigator.pop(context);
+                                    _transferConfDialog(
+                                        context, recipient, _montant);
+                                  }
+                                }
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
-            ));
-  }
-
-  bool _validateTransferForm() {
-    _montantError = false;
-    _montantErrorMessage = "";
+            ),
+          );
+        });
   }
 
   static shrink(Animation<double> _animation,
@@ -437,6 +704,14 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
             if (response) {
               ApiResponse res =
                   await transferConfirmation(_desNumber, _montant);
+              if (res.error == false) {
+                setState(() {
+                  _user.pay -= int.parse(_montant, onError: (value) {
+                    return 0;
+                  });
+                  _pref.addUserPay(_user.pay);
+                });
+              }
               return res;
             }
           },
@@ -466,6 +741,52 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
       },
     );
   }
+}
+
+Future<ApiResponse> empruntRequest(String amount) async {
+  String url = BASE_URL + '/api/user/emprunt';
+  String accessToken = await new SharedPref().getUserAccessToken();
+
+  Map<String, String> requestHeaders = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'Authorization': 'Bearer $accessToken',
+  };
+
+  final body = jsonEncode({
+    "amount": amount,
+  });
+
+  ApiResponse res;
+
+  try {
+    final response = await http.post(url, body: body, headers: requestHeaders);
+
+    final String responseString = response.body;
+    res = apiResponseFromJson(responseString);
+  } catch (e) {
+    res = ApiResponse(error: true, message: "500");
+  } finally {
+    // ignore: control_flow_in_finally
+    return res;
+  }
+}
+
+Future<String> scanQR() async {
+  String barcodeScanRes;
+  try {
+    barcodeScanRes = await BarcodeScanner.scan();
+  } catch (e) {
+    barcodeScanRes = null;
+    Fluttertoast.showToast(
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        msg: "RestoPass doit acceder au caméra.",
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.TOP,
+        timeInSecForIosWeb: 1);
+  }
+  return barcodeScanRes;
 }
 
 Widget progressBar() {
