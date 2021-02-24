@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "642146258359",
+    "project_id": "restopass-51ea9",
+    "storage_bucket": "restopass-51ea9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:642146258359:android:0bd779350744d9aae3ec32",
+        "android_client_info": {
+          "package_name": "sn.iris.soft.restopass"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "642146258359-h2fv4inpv4d7n247s8hk29a28eqfj5ur.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBcu4gHfWWE_Edc0aRgbCViRo8rmxyI8Ik"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "642146258359-h2fv4inpv4d7n247s8hk29a28eqfj5ur.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

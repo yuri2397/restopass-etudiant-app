@@ -2,12 +2,14 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ui';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:barcode_scan/barcode_scan.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
@@ -55,9 +57,18 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   bool _empruntHasError = false;
 
   String _empruntErrorMessage;
+
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+
   @override
   void initState() {
     myFuture = getUser();
+    _registerOnFirebase();
+    _getMessage();
+    initNotification();
     _controller =
         AnimationController(duration: Duration(seconds: 2), vsync: this);
     _animation = Tween(begin: 0.0, end: 1.0).animate(_controller);
@@ -65,12 +76,69 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     super.initState();
   }
 
+  _getMessage() {
+    _firebaseMessaging.configure(
+        onMessage: (Map<String, dynamic> message) async {
+      print("onMessage : $message");
+    }, onLaunch: (Map<String, dynamic> message) async {
+      showNotification(message['notification']);
+      print("ADD NOTIFICATION : $message");
+    }, onResume: (Map<String, dynamic> message) async {
+      showNotification(message['notification']);
+      print("ADD NOTIFICATION : $message");
+    });
+  }
+
+  initNotification() {
+    /**NOTIFICATION */
+    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+        FlutterLocalNotificationsPlugin();
+    var initializationSettingsAndroid =
+        AndroidInitializationSettings('app_icon');
+    var initializationSettingsIOS = IOSInitializationSettings(
+        onDidReceiveLocalNotification: (id, title, body, payload) =>
+            onDidReceiveLocalNotification(id, title, body, payload));
+    var initializationSettings = InitializationSettings(
+        android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
+    flutterLocalNotificationsPlugin.initialize(initializationSettings,
+        onSelectNotification: (value) => onSelectNotification(value));
+  }
+
+  Future onSelectNotification(String payload) {
+    print("onSelectNotification : $payload");
+  }
+
+  Future onDidReceiveLocalNotification(id, title, body, payload) async {
+    print("onDidReceiveLocalNotification : $title");
+  }
+
+  showNotification(Map<String, dynamic> message) async {
+    var android = AndroidNotificationDetails(
+        'BIBLIO_CHANNEL_ID', 'BIBLIO_CHANNEL_NAME ', 'description',
+        priority: Priority.high, importance: Importance.max);
+    var iOS = IOSNotificationDetails();
+    var platform = new NotificationDetails(android: android, iOS: iOS);
+    await flutterLocalNotificationsPlugin.show(
+      0,
+      message['title'],
+      message['body'],
+      platform,
+      payload: 'New Payload',
+    );
+  }
+
+  _registerOnFirebase() async {
+    var number = await SharedPref().getUserNumber();
+    _firebaseMessaging.subscribeToTopic(number.toString());
+    _firebaseMessaging.subscribeToTopic("all");
+    print("NUMBER TOPICS : $number");
+  }
+
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) => getUserData();
@@ -155,7 +223,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     _user = user;
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: kAccent,
         elevation: 0,
         leading: Builder(
           builder: (BuildContext context) {
@@ -180,8 +248,9 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
       ),
       body: SingleChildScrollView(
         child: Container(
+          color: kAccent,
           child: Column(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisSize: MainAxisSize.max,
             children: <Widget>[
               StackContainer(
                 user: user,
@@ -537,7 +606,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                       return "N° de dossier invalide.";
                                     }
                                     if (_user.number.toString() == value) {
-                                      return "Donner un autre numéro.";
+                                      return "Impossible. Ce numéro est le vôtre";
                                     }
                                     return null;
                                   },
@@ -554,7 +623,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                   child: InkWell(
                                     onTap: () async {
                                       String number = await scanQR();
-                                      print(number);
+                                      print("QR CODE SCANNER : " + number);
                                       if (number != "-1") {
                                         if (number.length == 11) {
                                           mystate(() {
@@ -607,7 +676,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                 return "Montant invalide.";
                               }
                               if (test < 50) {
-                                return "Montant minimum est 50 FCFA";
+                                return "Montant minimum 50 FCFA";
                               }
                               if (test > 10000) {
                                 return "Montant maximum 10.000 FCFA";
@@ -616,7 +685,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                 return "Montant n'est pas un multiple de 50";
                               }
                               if (_user.pay < test) {
-                                return "Montant insiffusant";
+                                return "Solde insuffisant";
                               }
                               return null;
                             },
@@ -729,7 +798,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
           progressBar(),
           Container(
               margin: EdgeInsets.only(left: 7),
-              child: Text("Traitement en cour...")),
+              child: Text("Traitement en cours...")),
         ],
       ),
     );
@@ -781,7 +850,7 @@ Future<String> scanQR() async {
     Fluttertoast.showToast(
         backgroundColor: Colors.red,
         textColor: Colors.white,
-        msg: "RestoPass doit acceder au caméra.",
+        msg: "RestoPass doit accéder à votre caméra.",
         toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.TOP,
         timeInSecForIosWeb: 1);

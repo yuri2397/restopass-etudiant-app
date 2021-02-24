@@ -14,6 +14,8 @@ void main() {
   initializeDateFormatting('fr_FR', null).then((value) => runApp(MyApp()));
 }
 
+
+
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

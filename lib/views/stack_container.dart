@@ -21,23 +21,12 @@ class _StackContainerState extends State<StackContainer> {
   Widget _alert;
   Size size;
   bool _isReload = false;
-  MoneyFormatterOutput pay;
 
   @override
   void initState() {
     super.initState();
     _alert = Container();
     _pref = SharedPref();
-    pay = FlutterMoneyFormatter(
-            amount: widget.user.pay.toDouble(),
-            settings: MoneyFormatterSettings(
-                symbol: 'XOF',
-                thousandSeparator: '.',
-                decimalSeparator: ',',
-                symbolAndNumberSeparator: ' ',
-                fractionDigits: 0,
-                compactFormatType: CompactFormatType.short))
-        .output;
   }
 
   @override
@@ -128,7 +117,19 @@ class _StackContainerState extends State<StackContainer> {
                                       onPayTap();
                                     },
                                     child: Text(
-                                      pay.symbolOnRight,
+                                      FlutterMoneyFormatter(
+                                              amount:
+                                                  widget.user.pay.toDouble(),
+                                              settings: MoneyFormatterSettings(
+                                                  symbol: 'F',
+                                                  thousandSeparator: '.',
+                                                  decimalSeparator: ',',
+                                                  symbolAndNumberSeparator: ' ',
+                                                  fractionDigits: 0,
+                                                  compactFormatType:
+                                                      CompactFormatType.short))
+                                          .output
+                                          .symbolOnRight,
                                       style: TextStyle(
                                           fontSize: 30,
                                           fontFamily: 'Poppins Meduim',
