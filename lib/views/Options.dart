@@ -123,8 +123,8 @@ class _OptionState extends State<Option> {
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Text('Created by iris soft'),
-                Text('Version 1.0.1'),
+                Text('Created by iris softech'),
+                Text('Version 1.0.0'),
               ],
             ))
       ]),

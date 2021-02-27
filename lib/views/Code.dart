@@ -60,6 +60,7 @@ class _CodeState extends State<Code> {
                   child: PrettyQr(
                     data: widget.number,
                     typeNumber: 3,
+                    image: AssetImage("assets/images/app_icon_black.png"),
                     roundEdges: true,
                     size: 200,
                   )),

@@ -4,7 +4,6 @@ import 'dart:ui';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:barcode_scan/barcode_scan.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
@@ -223,7 +222,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     _user = user;
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: kAccent,
+        backgroundColor: Colors.white,
         elevation: 0,
         leading: Builder(
           builder: (BuildContext context) {
@@ -248,7 +247,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
       ),
       body: SingleChildScrollView(
         child: Container(
-          color: kAccent,
+          color: Colors.white,
           child: Column(
             mainAxisSize: MainAxisSize.max,
             children: <Widget>[
@@ -290,7 +289,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                   children: [
                     _createCardButton(
                       context: context,
-                      text: "Transfet",
+                      text: "Transfert",
                       imagePath: "assets/images/money-transfer.svg",
                       onTap: () {
                         _showBottomSheetTransfer(context);
