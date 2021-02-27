@@ -61,7 +61,7 @@ class _StackContainerState extends State<StackContainer> {
                   child: Material(
                     borderRadius: BorderRadius.circular(8.0),
                     color: kPrimaryColor,
-                    elevation: 10,
+                    elevation: 2,
                     child: Container(
                       padding: EdgeInsets.all(20.0),
                       child: Row(
@@ -166,7 +166,7 @@ class _StackContainerState extends State<StackContainer> {
           width: size.width,
           margin: EdgeInsets.fromLTRB(20, 0, 20, 0),
           child: Material(
-            elevation: 10,
+            elevation: 2,
             color: Colors.white,
             borderRadius: BorderRadius.circular(8.0),
             child: Container(
@@ -213,11 +213,12 @@ class _StackContainerState extends State<StackContainer> {
           width: size.width,
           margin: EdgeInsets.fromLTRB(20, 0, 20, 0),
           child: Material(
-            elevation: 10,
+            elevation: 2,
             color: Colors.white,
             borderRadius: BorderRadius.circular(8.0),
             child: Container(
               height: 100,
+              width: 100,
               padding: EdgeInsets.all(10),
               child: Row(
                 mainAxisSize: MainAxisSize.max,

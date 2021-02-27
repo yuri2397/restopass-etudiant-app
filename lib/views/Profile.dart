@@ -13,11 +13,13 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:restopass/models/ApiResponse.dart';
+import 'package:restopass/models/Notification.dart';
 import 'package:restopass/models/Recipient.dart';
 import 'package:restopass/models/User.dart';
 import 'package:restopass/utils/CustomDialog.dart';
 import 'package:restopass/utils/SharedPref.dart';
 import 'package:restopass/views/Bay.dart';
+import 'package:restopass/views/NotificationItem.dart';
 import 'package:restopass/views/Options.dart';
 import 'package:restopass/views/stack_container.dart';
 import 'package:sleek_circular_slider/sleek_circular_slider.dart';
@@ -34,7 +36,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   Future<User> myFuture;
   AnimationController _controller;
   Animation _animation;
-
+  double _notHeight = 100.0;
   // VARIABLE POUR LE BOTTOMSHEET TRANSFER
   String _montant, _desNumber;
   bool _close = false;
@@ -251,12 +253,35 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
           child: Column(
             mainAxisSize: MainAxisSize.max,
             children: <Widget>[
+              // infortion et solde du user
               StackContainer(
                 user: user,
               ),
-              SizedBox(
-                height: 20,
+              // notifications
+              Container(
+                child: FutureBuilder(
+                    future: _getNotification(),
+                    builder: (BuildContext context, snapshot) {
+                      print("$snapshot");
+                      if (snapshot.hasData) {
+                        return _displayNotificationList(snapshot.data, context);
+                      } else if (snapshot.hasError) {
+                        return Text("${snapshot.error}");
+                      } else {
+                        return Container(
+                          color: Colors.white,
+                          padding: EdgeInsets.all(5),
+                          alignment: Alignment.center,
+                          width: 50,
+                          height: 50,
+                          child: Center(
+                            child: progressBar(),
+                          ),
+                        );
+                      }
+                    }),
               ),
+              // Card button
               Row(
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -324,7 +349,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         height: size.height / 5.5,
         width: size.width / 2.5,
         child: Card(
-          elevation: 5,
+          elevation: 2,
           child: Container(
             padding: EdgeInsets.all(5),
             child: Column(
@@ -534,6 +559,24 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         );
       },
     );
+  }
+
+  Widget _displayNotificationList(List<Not> data, BuildContext context) {
+    if (data.length == 0) {
+      
+      return Container();
+    } else {
+      
+      return Container(
+        height: 100.0,
+        child: ListView.builder(
+            shrinkWrap: true,
+            scrollDirection: Axis.horizontal,
+            itemCount: data.length,
+            itemBuilder: (context, index) =>
+                NotificationItem(notification: data[index])),
+      );
+    }
   }
 
   void _showBottomSheetTransfer(context) {
@@ -876,6 +919,19 @@ Widget progressBar() {
           )),
     ),
   );
+
+  Widget _displayNotificationList(List<Not> data, BuildContext context) {
+    if (data.length == 0) {
+      return Container();
+    } else {
+      return ListView.builder(
+          shrinkWrap: true,
+          scrollDirection: Axis.horizontal,
+          itemCount: data.length,
+          itemBuilder: (context, index) =>
+              NotificationItem(notification: data[index]));
+    }
+  }
 }
 
 Future<Recipient> transfer(String recipient) async {
@@ -1001,5 +1057,36 @@ Future<User> getUser() async {
   } finally {
     // ignore: control_flow_in_finally
     return user;
+  }
+}
+
+/// Récupérer la liste des notification
+Future<List<Not>> _getNotification() async {
+  print("GET NOTIFICATION");
+  String url = BASE_URL + '/api/user/notifications';
+
+  SharedPref sharedPref = new SharedPref();
+  String accessToken = await sharedPref.getUserAccessToken();
+
+  Map<String, String> requestHeaders = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'Authorization': 'Bearer $accessToken',
+  };
+
+  try {
+    final response = await http.get(url, headers: requestHeaders);
+    print("NOTIFICATION: " + response.body);
+    if (response.statusCode == 200) {
+      List<Not> n = (json.decode(response.body) as List)
+          .map((i) => Not.fromJson(i))
+          .toList();
+      return n;
+    } else {
+      return new List<Not>();
+    }
+  } catch (e) {
+    print("CATTTTTTTTTT $e");
+    return new List<Not>();
   }
 }
