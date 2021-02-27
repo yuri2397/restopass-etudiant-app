@@ -2,10 +2,13 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:restopass/models/Passage.dart';
+import 'package:restopass/models/Rechargement.dart';
 import 'package:restopass/models/Tranfer.dart';
 import 'package:restopass/utils/SharedPref.dart';
 import 'package:http/http.dart' as http;
 import 'package:restopass/views/card_item_passage.dart';
+import 'package:restopass/views/card_item_rechargement.dart';
+import 'package:sleek_circular_slider/sleek_circular_slider.dart';
 import 'Profile.dart';
 
 import '../constants.dart';
@@ -38,17 +41,11 @@ Future<List<Transfer>> getList() async {
           .toList();
       return t;
     } else {
-      List<Transfer> transfer = new List<Transfer>();
-      transfer.add(new Transfer(
-          amount: response.statusCode,
-          other: response.statusCode.toString(),
-          date: response.statusCode.toString()));
-      return transfer;
+      return null;
     }
   } catch (e) {
-    List<Transfer> transfer = new List<Transfer>();
-    transfer.add(new Transfer(amount: 0, other: "error", date: "error"));
-    return transfer;
+    print("CATCH TRANSFERT : $e");
+    return null;
   }
 }
 
@@ -64,21 +61,46 @@ Future<List<Passage>> getPassage() async {
 
   try {
     final response = await http.get(url, headers: requestHeaders);
+    print("RESPONSE PASSAGE :" + response.body);
     if (response.statusCode == 200) {
       List<Passage> t = (json.decode(response.body) as List)
           .map((i) => Passage.fromJson(i))
           .toList();
       return t;
     } else {
-      List<Passage> passage = new List<Passage>();
-      passage.add(new Passage(
-          amount: response.statusCode, date: response.statusCode.toString()));
-      return passage;
+      return null;
     }
   } catch (e) {
-    List<Passage> passage = List<Passage>();
-    passage.add(new Passage(amount: 0, date: "error"));
-    return passage;
+    print("CATCH PASSAGE : $e");
+    return null;
+  }
+}
+
+Future<List<Rechargement>> getRechargement() async {
+  String url = BASE_URL + '/api/user/pays';
+  String accessToken = await SharedPref().getUserAccessToken();
+
+  Map<String, String> requestHeaders = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'Authorization': 'Bearer $accessToken',
+  };
+
+  try {
+    final response = await http.get(url, headers: requestHeaders);
+    print("RESPONSE RECHARGEMENT : $response");
+    if (response.statusCode == 200) {
+      List<Rechargement> t = (json.decode(response.body) as List)
+          .map((i) => Rechargement.fromJson(i))
+          .toList();
+      return t;
+    } else {
+      print("ELSE");
+      return null;
+    }
+  } catch (e) {
+    print("CATCH : $e");
+    return null;
   }
 }
 
@@ -86,9 +108,10 @@ class _ListTransferState extends State<ListTransfer>
     with SingleTickerProviderStateMixin {
   Future<List<Transfer>> myFuture;
   Future<List<Passage>> myPassage;
+  Future<List<Rechargement>> myRechargement;
   AnimationController _controller;
   Animation _animation;
-  Widget transfertTab, passageTab;
+  Widget transfertTab, passageTab, rechargementTab;
 
   List<Widget> tabs;
 
@@ -96,15 +119,17 @@ class _ListTransferState extends State<ListTransfer>
   void initState() {
     myFuture = getList();
     myPassage = getPassage();
+    myRechargement = getRechargement();
     _controller =
         AnimationController(duration: Duration(seconds: 2), vsync: this);
     _animation = Tween(begin: 0.0, end: 1.0).animate(_controller);
     transfertTab = _transferList();
     passageTab = _passageList();
+    rechargementTab = _rechargementList();
     tabs = [
       transfertTab,
       passageTab,
-      Text("Achat"),
+      rechargementTab,
     ];
     super.initState();
   }
@@ -171,9 +196,10 @@ class _ListTransferState extends State<ListTransfer>
       future: myFuture,
       builder: (BuildContext context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
-          if (snapshot.hasError) {
+          if (snapshot.hasError || !snapshot.hasData) {
             _controller.forward(from: 0.0);
             return Material(
+              color: Colors.white,
               child: Container(
                 margin: const EdgeInsets.only(top: 36.0),
                 width: double.infinity,
@@ -191,7 +217,14 @@ class _ListTransferState extends State<ListTransfer>
                             size: 30,
                           ),
                           SizedBox(height: 15),
+                          Text("Vérifier votre connexion internet.",
+                              style: TextStyle(
+                                  fontFamily: "Poppins Light",
+                                  color: Colors.black)),
+                          SizedBox(height: 15),
                           FlatButton(
+                            color: kPrimaryColor,
+                            textColor: Colors.white,
                             onPressed: () {
                               setState(() {
                                 myFuture = getList();
@@ -208,10 +241,6 @@ class _ListTransferState extends State<ListTransfer>
             );
           } else if (snapshot.hasData) {
             return _afficherListTransfert(context, snapshot.data);
-          } else {
-            return Center(
-              child: Text("VIDE"),
-            );
           }
         } else {
           return Container(
@@ -232,9 +261,10 @@ class _ListTransferState extends State<ListTransfer>
       future: myPassage,
       builder: (BuildContext context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
-          if (snapshot.hasError) {
+          if (snapshot.hasError || !snapshot.hasData) {
             _controller.forward(from: 0.0);
             return Material(
+              color: Colors.white,
               child: Container(
                 margin: const EdgeInsets.only(top: 36.0),
                 width: double.infinity,
@@ -252,7 +282,14 @@ class _ListTransferState extends State<ListTransfer>
                             size: 30,
                           ),
                           SizedBox(height: 15),
+                          Text("Vérifier votre connexion internet.",
+                              style: TextStyle(
+                                  fontFamily: "Poppins Light",
+                                  color: Colors.black)),
+                          SizedBox(height: 15),
                           FlatButton(
+                            color: kPrimaryColor,
+                            textColor: Colors.white,
                             onPressed: () {
                               setState(() {
                                 myPassage = getPassage();
@@ -269,10 +306,6 @@ class _ListTransferState extends State<ListTransfer>
             );
           } else if (snapshot.hasData) {
             return _afficherListPassage(context, snapshot.data);
-          } else {
-            return Center(
-              child: Text("VIDE"),
-            );
           }
         } else {
           return Container(
@@ -288,19 +321,104 @@ class _ListTransferState extends State<ListTransfer>
     );
   }
 
+  Widget _rechargementList() {
+    return FutureBuilder(
+      future: myRechargement,
+      builder: (BuildContext context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          if (snapshot.hasError || !snapshot.hasData) {
+            _controller.forward(from: 0.0);
+            return Material(
+              color: Colors.white,
+              child: Container(
+                margin: const EdgeInsets.only(top: 36.0),
+                width: double.infinity,
+                child: FadeTransition(
+                  opacity: _animation,
+                  child: Center(
+                    child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.perm_scan_wifi,
+                            color: Colors.black,
+                            size: 30,
+                          ),
+                          SizedBox(height: 15),
+                          Text("Vérifier votre connexion internet.",
+                              style: TextStyle(
+                                  fontFamily: "Poppins Light",
+                                  color: Colors.black)),
+                          SizedBox(height: 15),
+                          FlatButton(
+                            color: kPrimaryColor,
+                            textColor: Colors.white,
+                            onPressed: () {
+                              setState(() {
+                                myRechargement = getRechargement();
+                              });
+                            },
+                            child: Text(
+                              "Réessayer",
+                            ),
+                          )
+                        ]),
+                  ),
+                ),
+              ),
+            );
+          } else if (snapshot.hasData) {
+            return _afficherListRechargement(context, snapshot.data);
+          }
+        } else {
+          return Container(
+              color: Colors.white,
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+              child: progressBar());
+        }
+      },
+    );
+  }
+
   Widget _afficherListPassage(BuildContext context, List<Passage> list) {
     bool state = list.length == 0;
+    print(list);
     return Column(
       children: [
         Expanded(
           child: state
               ? Center(
-                  child: Text("Vous n'avez jamais utilisé votre compte RestoPass."),
+                  child: Text(
+                      "Vous n'avez jamais utilisé votre compte RestoPass."),
                 )
               : ListView.builder(
                   itemCount: list.length,
                   itemBuilder: (context, index) =>
                       CardItemPassage(passage: list[index])),
+        ),
+      ],
+    );
+  }
+
+  Widget _afficherListRechargement(
+      BuildContext context, List<Rechargement> list) {
+    bool state = list.length == 0;
+    print("RECHARGEMNT : " + list.length.toString());
+    return Column(
+      children: [
+        Expanded(
+          child: state
+              ? Center(
+                  child: Text(
+                      "Vous n'avez jamais utilisé votre compte RestoPass."),
+                )
+              : ListView.builder(
+                  itemCount: list.length,
+                  itemBuilder: (context, index) =>
+                      CardItemRechargement(rechargement: list[index])),
         ),
       ],
     );

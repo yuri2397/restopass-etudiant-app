@@ -1,23 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:restopass/models/Tranfer.dart';
+import 'package:restopass/constants.dart';
+import 'package:restopass/models/Rechargement.dart';
+import 'package:restopass/models/Rechargement.dart';
 import 'package:intl/intl.dart';
 
-class CardItem extends StatefulWidget {
-  final Transfer transfer;
+class CardItemRechargement extends StatefulWidget {
+  final Rechargement rechargement;
 
-  CardItem({
+  CardItemRechargement({
     Key key,
-    this.transfer,
+    this.rechargement,
   }) : super(key: key);
 
   @override
-  _CardItemState createState() => _CardItemState();
+  _CardItemRechargementState createState() => _CardItemRechargementState();
 }
 
-class _CardItemState extends State<CardItem> {
+class _CardItemRechargementState extends State<CardItemRechargement> {
   @override
   Widget build(BuildContext context) {
-    bool mode = widget.transfer.amount < 0;
     return Container(
       width: double.infinity,
       margin: EdgeInsets.only(top: 5),
@@ -31,9 +32,9 @@ class _CardItemState extends State<CardItem> {
               Row(
                 children: [
                   Icon(
-                    mode ? Icons.call_made : Icons.call_received_sharp,
-                    size: 20,
-                    color: mode ? Colors.red : Colors.green,
+                    Icons.credit_card_rounded,
+                    size: 30,
+                    color: kPrimaryColor,
                   ),
                   SizedBox(
                     width: 10,
@@ -43,7 +44,7 @@ class _CardItemState extends State<CardItem> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        widget.transfer.other,
+                        widget.rechargement.phoneNumber,
                         style: TextStyle(
                           fontFamily: "Poppins Light",
                           fontSize: 15,
@@ -56,7 +57,7 @@ class _CardItemState extends State<CardItem> {
                       Text(
                         DateFormat.yMMMMd('fr_FR').format(
                             DateFormat("yyyy-MM-dd")
-                                .parse(widget.transfer.date)),
+                                .parse(widget.rechargement.date)),
                         style: TextStyle(
                           fontFamily: "Poppins Light",
                           fontSize: 12,
@@ -68,12 +69,12 @@ class _CardItemState extends State<CardItem> {
               ),
               Container(
                 child: Text(
-                  widget.transfer.amount.toString() + " FCFA",
+                  widget.rechargement.amount.toString() + " FCFA",
                   style: TextStyle(
                       fontSize: 15,
                       fontFamily: "Poppins Light",
                       fontWeight: FontWeight.bold,
-                      color: mode ? Colors.red : Colors.green),
+                      color: Colors.black),
                 ),
               )
             ],

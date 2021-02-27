@@ -4,13 +4,12 @@ import 'package:restopass/utils/SharedPref.dart';
 import 'package:restopass/views/Code.dart';
 import 'package:restopass/views/Profile.dart';
 import 'package:http/http.dart' as http;
-
+import 'package:flutter_money_formatter/flutter_money_formatter.dart';
 import '../constants.dart';
 
 class StackContainer extends StatefulWidget {
   final User user;
-
-  const StackContainer({Key key, this.user}) : super(key: key);
+  StackContainer({Key key, this.user}) : super(key: key);
 
   @override
   _StackContainerState createState() => _StackContainerState();
@@ -22,22 +21,34 @@ class _StackContainerState extends State<StackContainer> {
   Widget _alert;
   Size size;
   bool _isReload = false;
+  MoneyFormatterOutput pay;
+
   @override
   void initState() {
     super.initState();
     _alert = Container();
     _pref = SharedPref();
+    pay = FlutterMoneyFormatter(
+            amount: widget.user.pay.toDouble(),
+            settings: MoneyFormatterSettings(
+                symbol: 'XOF',
+                thousandSeparator: '.',
+                decimalSeparator: ',',
+                symbolAndNumberSeparator: ' ',
+                fractionDigits: 0,
+                compactFormatType: CompactFormatType.short))
+        .output;
   }
 
   @override
-  void didUpdateWidget (StackContainer oldWidget) {
+  void didUpdateWidget(StackContainer oldWidget) {
     super.didUpdateWidget(oldWidget);
-    onPayTop();
   }
+
+  double reciprocal(double d) => 1 / d;
 
   @override
   Widget build(BuildContext context) {
-
     String f = capitalize(widget.user.firstName);
     String l = capitalize(widget.user.lastName);
     if (f.length > 10) {
@@ -75,6 +86,7 @@ class _StackContainerState extends State<StackContainer> {
                               children: [
                                 Row(
                                   children: [
+                                    // Code QR
                                     Align(
                                       alignment: Alignment.centerLeft,
                                       child: InkWell(
@@ -97,6 +109,7 @@ class _StackContainerState extends State<StackContainer> {
                                       ),
                                     ),
                                     SizedBox(width: 20),
+                                    // Prénom et Nom
                                     Text(
                                       _fullName,
                                       style: TextStyle(
@@ -107,14 +120,15 @@ class _StackContainerState extends State<StackContainer> {
                                   ],
                                 ),
                                 SizedBox(height: 20),
+                                // Solde
                                 Align(
                                   alignment: Alignment.centerLeft,
                                   child: InkWell(
                                     onTap: () async {
-                                      onPayTop();
+                                      onPayTap();
                                     },
                                     child: Text(
-                                      widget.user.pay.toString() + ' FCFA',
+                                      pay.symbolOnRight,
                                       style: TextStyle(
                                           fontSize: 30,
                                           fontFamily: 'Poppins Meduim',
@@ -140,7 +154,7 @@ class _StackContainerState extends State<StackContainer> {
     );
   }
 
-  onPayTop() async {
+  onPayTap() async {
     setState(() {
       _isReload = true;
     });
@@ -152,6 +166,7 @@ class _StackContainerState extends State<StackContainer> {
           margin: EdgeInsets.fromLTRB(20, 0, 20, 0),
           child: Material(
             elevation: 10,
+            color: Colors.white,
             borderRadius: BorderRadius.circular(8.0),
             child: Container(
               height: 100,
@@ -185,6 +200,12 @@ class _StackContainerState extends State<StackContainer> {
         );
         _isReload = false;
       });
+    } else if (pay == -401) {
+      SharedPref shar = new SharedPref();
+      shar.removeSharedPrefs();
+      Navigator.of(context)
+          .pushNamedAndRemoveUntil('/login', (Route<dynamic> route) => false);
+      return;
     } else if (pay <= -400) {
       setState(() {
         _alert = Container(
@@ -192,6 +213,7 @@ class _StackContainerState extends State<StackContainer> {
           margin: EdgeInsets.fromLTRB(20, 0, 20, 0),
           child: Material(
             elevation: 10,
+            color: Colors.white,
             borderRadius: BorderRadius.circular(8.0),
             child: Container(
               height: 100,
@@ -249,10 +271,9 @@ String capitalize(String text) {
 }
 
 Future<int> reloadPay() async {
-  String url = BASE_URL + '/api/user/pay';
+  String url = BASE_URL + '/api/user/bay';
   SharedPref sharedPref = new SharedPref();
   String accessToken = await sharedPref.getUserAccessToken();
-
   Map<String, String> requestHeaders = {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
