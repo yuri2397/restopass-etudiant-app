@@ -13,7 +13,7 @@ class _IntroState extends State<Intro> {
 
   List<PageViewModel> getPages(){
     double titleSize = 30;
-    double descSize = 13;
+    double descSize = 17;
     return [
       PageViewModel(
         image: Image.asset("assets/images/welcome.jpg"),
@@ -28,7 +28,7 @@ class _IntroState extends State<Intro> {
         bodyWidget: Container(
           margin: EdgeInsets.only(left: 20, right: 20),
           child: Text(
-            "Bienvenue sur RestoPass, votre application qui vous facilite le quotidien.",
+            "Bienvenue sur RestoPass.",
             style: TextStyle(
               fontFamily: "Poppins Light",
               fontSize: descSize,
@@ -41,7 +41,7 @@ class _IntroState extends State<Intro> {
           image: Image.asset("assets/images/achat.jpg"),
           titleWidget: Container(
             margin: EdgeInsets.only(left: 20, right: 20),
-            child: Text("Acheter vos tickets en ligne.",
+            child: Text("Achetez vos tickets en ligne.",
               style: TextStyle(
                 fontSize: titleSize,
                 fontFamily: "Poppins Meduim",
@@ -52,7 +52,7 @@ class _IntroState extends State<Intro> {
           bodyWidget: Container(
             margin: EdgeInsets.only(left: 20, right: 20),
             child: Text(
-              "Pas de file d'attente, recharger seulement votre compte et acheter vos tickets RestoPass.",
+              "Pas de file d'attente, rechargez votre compte et entrez au resto.",
               style: TextStyle(
                 fontFamily: "Poppins Light",
                 fontSize: descSize,
@@ -62,7 +62,7 @@ class _IntroState extends State<Intro> {
           ),
       ),
       PageViewModel(
-        image: Image.asset("assets/images/welcome.jpg"),
+        image: Image.asset("assets/images/qr-code.jpg"),
         titleWidget: Container(
           margin: EdgeInsets.only(left: 20, right: 20),
           child: Text("Votre QR code, votre meilleur ami.",
@@ -76,7 +76,7 @@ class _IntroState extends State<Intro> {
         bodyWidget: Container(
           margin: EdgeInsets.only(left: 20, right: 20),
           child: Text(
-            "Votre QR code RestoPass vous donner accès au resto.",
+            "Utitlisez votre QR code pour accèder au resto.",
             style: TextStyle(
               fontFamily: "Poppins Light",
               fontSize: descSize,
@@ -89,7 +89,7 @@ class _IntroState extends State<Intro> {
         image: Image.asset("assets/images/transfer.jpg"),
         titleWidget: Container(
           margin: EdgeInsets.only(left: 20, right: 20),
-          child: Text("Partager vos tickets avec vos amis.",
+          child: Text("Partagez vos tickets avec vos amis.",
             style: TextStyle(
               fontSize: titleSize,
               fontFamily: "Poppins Meduim",
@@ -100,7 +100,7 @@ class _IntroState extends State<Intro> {
         bodyWidget: Container(
           margin: EdgeInsets.only(left: 20, right: 20),
           child: Text(
-            "Vous avez la possibilité de transferer des tickets avec vos amis.",
+            "Vous avez la possibilité de transférer des tickets à vos amis.",
             style: TextStyle(
               fontFamily: "Poppins Light",
               fontSize: descSize,
@@ -109,6 +109,31 @@ class _IntroState extends State<Intro> {
           ),
         ),
       ),
+      PageViewModel(
+          image: Image.asset("assets/images/achat.jpg"),
+          titleWidget: Container(
+            margin: EdgeInsets.only(left: 20, right: 20),
+            child: Text("Pas d'argent? Empruntez des tickets.",
+              style: TextStyle(
+                fontSize: titleSize,
+                fontFamily: "Poppins Meduim",
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          bodyWidget: Container(
+            margin: EdgeInsets.only(left: 20, right: 20),
+            child: Text(
+              "Le rembourssement se fera au prochain rechargement.",
+              style: TextStyle(
+                fontFamily: "Poppins Light",
+                fontSize: descSize,
+              ),
+              textAlign: TextAlign.left,
+            ),
+          ),
+      ),
+      
     ];
   }
   SharedPref _pref;

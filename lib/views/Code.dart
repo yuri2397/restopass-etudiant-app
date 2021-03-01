@@ -68,7 +68,7 @@ class _CodeState extends State<Code> {
             Container(
               padding: EdgeInsets.all(30),
               child: Text(
-                'Votre code QR est privé. Si vous le partagez avec quelqu\'un, il peut l\'utiliser pour accéder au resto.',
+                'Votre QR code est privé. Si vous le partagez avec quelqu\'un, il peut l\'utiliser pour accéder au resto.',
                 style: TextStyle(fontFamily: 'Poppins Light', fontSize: 15),
                 textAlign: TextAlign.center,
               ),

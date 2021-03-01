@@ -563,10 +563,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
   Widget _displayNotificationList(List<Not> data, BuildContext context) {
     if (data.length == 0) {
-      
       return Container();
     } else {
-      
       return Container(
         height: 100.0,
         child: ListView.builder(
@@ -664,14 +662,16 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                   color: Colors.white,
                                   child: InkWell(
                                     onTap: () async {
+                                      _numberController.text = "";
                                       String number = await scanQR();
                                       print("QR CODE SCANNER : " + number);
                                       if (number != "-1") {
                                         if (number.length == 11) {
                                           mystate(() {
                                             _numberHasError = false;
+                                            _numberController.text = number;
+                                            _desNumber = number;
                                           });
-                                          _numberController.text = number;
                                         } else {
                                           print("INVALIDE");
                                           mystate(() {
@@ -763,6 +763,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                         gravity: ToastGravity.TOP,
                                         timeInSecForIosWeb: 1);
                                   } else if (recipient.lastName == "422") {
+                                    print("NUMMMMMM : " + recipient.firstName);
                                     setState(() {
                                       _numberHasError = true;
                                       _numberErrorMessage = recipient.firstName;
@@ -1076,7 +1077,6 @@ Future<List<Not>> _getNotification() async {
 
   try {
     final response = await http.get(url, headers: requestHeaders);
-    print("NOTIFICATION: " + response.body);
     if (response.statusCode == 200) {
       List<Not> n = (json.decode(response.body) as List)
           .map((i) => Not.fromJson(i))

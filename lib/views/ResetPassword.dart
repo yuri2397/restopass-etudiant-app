@@ -193,9 +193,10 @@ class _ResetPasswordState extends State<ResetPassword> {
     return RegExp(r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*$").hasMatch(str);
   }
 
-  void _afterResponse(ApiResponse apiResponse) {
+  void _afterResponse(ApiResponse apiResponse) async {
     if(apiResponse.error == false){
-      _showMyDialog();
+      await _showMyDialog();
+      Navigator.pop(context);
     }
     else if(apiResponse.message == "404"){
       _hasErrors = true;
