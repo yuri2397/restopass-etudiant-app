@@ -2,21 +2,24 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ui';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:barcode_scan/barcode_scan.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:restopass/models/ApiResponse.dart';
+import 'package:restopass/models/Notification.dart';
 import 'package:restopass/models/Recipient.dart';
 import 'package:restopass/models/User.dart';
 import 'package:restopass/utils/CustomDialog.dart';
 import 'package:restopass/utils/SharedPref.dart';
 import 'package:restopass/views/Bay.dart';
+import 'package:restopass/views/NotificationItem.dart';
 import 'package:restopass/views/Options.dart';
 import 'package:restopass/views/stack_container.dart';
 import 'package:sleek_circular_slider/sleek_circular_slider.dart';
@@ -33,7 +36,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   Future<User> myFuture;
   AnimationController _controller;
   Animation _animation;
-
+  double _notHeight = 100.0;
   // VARIABLE POUR LE BOTTOMSHEET TRANSFER
   String _montant, _desNumber;
   bool _close = false;
@@ -55,9 +58,18 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   bool _empruntHasError = false;
 
   String _empruntErrorMessage;
+
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+
   @override
   void initState() {
     myFuture = getUser();
+    _registerOnFirebase();
+    _getMessage();
+    initNotification();
     _controller =
         AnimationController(duration: Duration(seconds: 2), vsync: this);
     _animation = Tween(begin: 0.0, end: 1.0).animate(_controller);
@@ -65,12 +77,69 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     super.initState();
   }
 
+  _getMessage() {
+    _firebaseMessaging.configure(
+        onMessage: (Map<String, dynamic> message) async {
+      print("onMessage : $message");
+    }, onLaunch: (Map<String, dynamic> message) async {
+      showNotification(message['notification']);
+      print("ADD NOTIFICATION : $message");
+    }, onResume: (Map<String, dynamic> message) async {
+      showNotification(message['notification']);
+      print("ADD NOTIFICATION : $message");
+    });
+  }
+
+  initNotification() {
+    /**NOTIFICATION */
+    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+        FlutterLocalNotificationsPlugin();
+    var initializationSettingsAndroid =
+        AndroidInitializationSettings('app_icon');
+    var initializationSettingsIOS = IOSInitializationSettings(
+        onDidReceiveLocalNotification: (id, title, body, payload) =>
+            onDidReceiveLocalNotification(id, title, body, payload));
+    var initializationSettings = InitializationSettings(
+        android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
+    flutterLocalNotificationsPlugin.initialize(initializationSettings,
+        onSelectNotification: (value) => onSelectNotification(value));
+  }
+
+  Future onSelectNotification(String payload) {
+    print("onSelectNotification : $payload");
+  }
+
+  Future onDidReceiveLocalNotification(id, title, body, payload) async {
+    print("onDidReceiveLocalNotification : $title");
+  }
+
+  showNotification(Map<String, dynamic> message) async {
+    var android = AndroidNotificationDetails(
+        'BIBLIO_CHANNEL_ID', 'BIBLIO_CHANNEL_NAME ', 'description',
+        priority: Priority.high, importance: Importance.max);
+    var iOS = IOSNotificationDetails();
+    var platform = new NotificationDetails(android: android, iOS: iOS);
+    await flutterLocalNotificationsPlugin.show(
+      0,
+      message['title'],
+      message['body'],
+      platform,
+      payload: 'New Payload',
+    );
+  }
+
+  _registerOnFirebase() async {
+    var number = await SharedPref().getUserNumber();
+    _firebaseMessaging.subscribeToTopic(number.toString());
+    _firebaseMessaging.subscribeToTopic("all");
+    print("NUMBER TOPICS : $number");
+  }
+
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) => getUserData();
@@ -180,15 +249,39 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
       ),
       body: SingleChildScrollView(
         child: Container(
+          color: Colors.white,
           child: Column(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisSize: MainAxisSize.max,
             children: <Widget>[
+              // infortion et solde du user
               StackContainer(
                 user: user,
               ),
-              SizedBox(
-                height: 20,
+              // notifications
+              Container(
+                child: FutureBuilder(
+                    future: _getNotification(),
+                    builder: (BuildContext context, snapshot) {
+                      print("$snapshot");
+                      if (snapshot.hasData) {
+                        return _displayNotificationList(snapshot.data, context);
+                      } else if (snapshot.hasError) {
+                        return Text("${snapshot.error}");
+                      } else {
+                        return Container(
+                          color: Colors.white,
+                          padding: EdgeInsets.all(5),
+                          alignment: Alignment.center,
+                          width: 50,
+                          height: 50,
+                          child: Center(
+                            child: progressBar(),
+                          ),
+                        );
+                      }
+                    }),
               ),
+              // Card button
               Row(
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -221,7 +314,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                   children: [
                     _createCardButton(
                       context: context,
-                      text: "Transfet",
+                      text: "Transfert",
                       imagePath: "assets/images/money-transfer.svg",
                       onTap: () {
                         _showBottomSheetTransfer(context);
@@ -256,7 +349,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         height: size.height / 5.5,
         width: size.width / 2.5,
         child: Card(
-          elevation: 5,
+          elevation: 2,
           child: Container(
             padding: EdgeInsets.all(5),
             child: Column(
@@ -468,6 +561,22 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     );
   }
 
+  Widget _displayNotificationList(List<Not> data, BuildContext context) {
+    if (data.length == 0) {
+      return Container();
+    } else {
+      return Container(
+        height: 100.0,
+        child: ListView.builder(
+            shrinkWrap: true,
+            scrollDirection: Axis.horizontal,
+            itemCount: data.length,
+            itemBuilder: (context, index) =>
+                NotificationItem(notification: data[index])),
+      );
+    }
+  }
+
   void _showBottomSheetTransfer(context) {
     Size size = MediaQuery.of(context).size;
     showModalBottomSheet(
@@ -537,7 +646,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                       return "N° de dossier invalide.";
                                     }
                                     if (_user.number.toString() == value) {
-                                      return "Donner un autre numéro.";
+                                      return "Impossible. Ce numéro est le vôtre";
                                     }
                                     return null;
                                   },
@@ -553,14 +662,16 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                   color: Colors.white,
                                   child: InkWell(
                                     onTap: () async {
+                                      _numberController.text = "";
                                       String number = await scanQR();
-                                      print(number);
+                                      print("QR CODE SCANNER : " + number);
                                       if (number != "-1") {
                                         if (number.length == 11) {
                                           mystate(() {
                                             _numberHasError = false;
+                                            _numberController.text = number;
+                                            _desNumber = number;
                                           });
-                                          _numberController.text = number;
                                         } else {
                                           print("INVALIDE");
                                           mystate(() {
@@ -607,7 +718,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                 return "Montant invalide.";
                               }
                               if (test < 50) {
-                                return "Montant minimum est 50 FCFA";
+                                return "Montant minimum 50 FCFA";
                               }
                               if (test > 10000) {
                                 return "Montant maximum 10.000 FCFA";
@@ -616,7 +727,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                 return "Montant n'est pas un multiple de 50";
                               }
                               if (_user.pay < test) {
-                                return "Montant insiffusant";
+                                return "Solde insuffisant";
                               }
                               return null;
                             },
@@ -652,6 +763,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                         gravity: ToastGravity.TOP,
                                         timeInSecForIosWeb: 1);
                                   } else if (recipient.lastName == "422") {
+                                    print("NUMMMMMM : " + recipient.firstName);
                                     setState(() {
                                       _numberHasError = true;
                                       _numberErrorMessage = recipient.firstName;
@@ -729,7 +841,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
           progressBar(),
           Container(
               margin: EdgeInsets.only(left: 7),
-              child: Text("Traitement en cour...")),
+              child: Text("Traitement en cours...")),
         ],
       ),
     );
@@ -781,7 +893,7 @@ Future<String> scanQR() async {
     Fluttertoast.showToast(
         backgroundColor: Colors.red,
         textColor: Colors.white,
-        msg: "RestoPass doit acceder au caméra.",
+        msg: "RestoPass doit accéder à votre caméra.",
         toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.TOP,
         timeInSecForIosWeb: 1);
@@ -808,6 +920,19 @@ Widget progressBar() {
           )),
     ),
   );
+
+  Widget _displayNotificationList(List<Not> data, BuildContext context) {
+    if (data.length == 0) {
+      return Container();
+    } else {
+      return ListView.builder(
+          shrinkWrap: true,
+          scrollDirection: Axis.horizontal,
+          itemCount: data.length,
+          itemBuilder: (context, index) =>
+              NotificationItem(notification: data[index]));
+    }
+  }
 }
 
 Future<Recipient> transfer(String recipient) async {
@@ -933,5 +1058,35 @@ Future<User> getUser() async {
   } finally {
     // ignore: control_flow_in_finally
     return user;
+  }
+}
+
+/// Récupérer la liste des notification
+Future<List<Not>> _getNotification() async {
+  print("GET NOTIFICATION");
+  String url = BASE_URL + '/api/user/notifications';
+
+  SharedPref sharedPref = new SharedPref();
+  String accessToken = await sharedPref.getUserAccessToken();
+
+  Map<String, String> requestHeaders = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'Authorization': 'Bearer $accessToken',
+  };
+
+  try {
+    final response = await http.get(url, headers: requestHeaders);
+    if (response.statusCode == 200) {
+      List<Not> n = (json.decode(response.body) as List)
+          .map((i) => Not.fromJson(i))
+          .toList();
+      return n;
+    } else {
+      return new List<Not>();
+    }
+  } catch (e) {
+    print("CATTTTTTTTTT $e");
+    return new List<Not>();
   }
 }

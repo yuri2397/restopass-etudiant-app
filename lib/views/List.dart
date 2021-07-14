@@ -151,7 +151,7 @@ class _ListTransferState extends State<ListTransfer>
           iconTheme: IconThemeData(
             color: Colors.white,
           ),
-          title: Text("Transactions",
+          title: Text("Historique",
               style: TextStyle(
                   color: Colors.white,
                   fontSize: 20,
@@ -161,7 +161,7 @@ class _ListTransferState extends State<ListTransfer>
             indicatorColor: Colors.white,
             tabs: [
               Tab(child: Text("Transfert")),
-              Tab(child: Text("Historique")),
+              Tab(child: Text("Resto")),
               Tab(child: Text("Achat")),
             ],
           ),

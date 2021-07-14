@@ -55,7 +55,6 @@ class _LoginState extends State<Login> {
   String _message;
   var _isLoad = false;
   String _password, _number;
-  String _text1 = "Connectez-vous";
   bool _hasErrors = false, _numberError = false, _passwordError = false;
   static SharedPref _sharedPref;
 
@@ -93,7 +92,7 @@ class _LoginState extends State<Login> {
               alignment: Alignment.topLeft,
               margin: EdgeInsets.only(left: 30, bottom: 10),
               child: Text(
-                _text1,
+                "Connectez-vous !",
                 style: TextStyle(
                   fontSize: 25,
                   fontFamily: "Poppins Meduim",
@@ -183,9 +182,10 @@ class _LoginState extends State<Login> {
                 child: Text(
                   "Mot de passe oublié?",
                   style: TextStyle(
-                    color: Colors.black,
+                    color: kPrimaryColor,
                     fontSize: 13,
                     fontFamily: "Poppins Light",
+                    decoration: TextDecoration.underline
                   ),
                   textAlign: TextAlign.left,
                 ),

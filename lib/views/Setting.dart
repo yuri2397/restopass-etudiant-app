@@ -169,10 +169,11 @@ class _SettingState extends State<Setting> {
                         await sendRequest(_exPassword, _newPassword);
 
                     if (res.error == false) {
-                      _showSuccessDialog(res.message);
+                      await _showSuccessDialog(res.message);
                       setState(() {
                         _isLoad = false;
                       });
+                      Navigator.pop(context);
                     } else if (res.message == '400') {
                       setState(() {
                         _isLoad = false;

@@ -29,6 +29,7 @@ dependencies:
   pretty_qr_code: ^1.0.1
   flutter_barcode_scanner: ^1.0.2
   flutter_money_formatter: ^0.8.3
+  firebase_messaging: ^7.0.3
 dev_dependencies:
   flutter_test:
     sdk: flutter
