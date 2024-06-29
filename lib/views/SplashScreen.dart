@@ -13,7 +13,7 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  SharedPref _pref;
+  SharedPref? _pref;
 
   @override
   void initState() {
@@ -25,8 +25,8 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
 
     Timer(Duration(seconds: 2), () async{
-      bool firstTime = await _pref.getFirstTime();
-      bool login = await _pref.isLogin();
+      bool firstTime = await _pref!.getFirstTime();
+      bool login = await _pref!.isLogin();
       Widget w = Login();
       if(login){
         w = Profile();

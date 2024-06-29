@@ -7,7 +7,7 @@ import 'package:restopass/utils/SharedPref.dart';
 import 'package:http/http.dart' as http;
 
 class Setting extends StatefulWidget {
-  Setting({Key key}) : super(key: key);
+  Setting({Key? key}) : super(key: key);
 
   @override
   _SettingState createState() => _SettingState();
@@ -15,12 +15,12 @@ class Setting extends StatefulWidget {
 
 class _SettingState extends State<Setting> {
   var _isLoad = false;
-  String _newPassword, _exPassword;
-  String _exMessage, _newMessage, _newConfMessage;
+  String? _newPassword, _exPassword;
+  String? _exMessage, _newMessage, _newConfMessage;
   bool _exPasswordError = false,
       _passwordError = false,
       _passwordConfError = false;
-  static SharedPref _sharedPref;
+  static SharedPref? _sharedPref;
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -72,7 +72,7 @@ class _SettingState extends State<Setting> {
                             fontWeight: FontWeight.w300),
                         keyboardType: TextInputType.number,
                         validator: (value) {
-                          if (value.isEmpty) {
+                          if (value != null && value.isEmpty) {
                             return "Donner le mot de passe actuel.";
                           }
                           return null;
@@ -99,10 +99,10 @@ class _SettingState extends State<Setting> {
                             fontWeight: FontWeight.w300),
                         keyboardType: TextInputType.visiblePassword,
                         validator: (value) {
-                          if (value.isEmpty) {
+                          if (value != null && value.isEmpty) {
                             return "Nouveau mot de passe required.";
                           }
-                          if (value.length < 6) {
+                          if (value != null && value.length < 6) {
                             return "Longueur minimum 6 caracteres.";
                           }
                           return null;
@@ -129,7 +129,7 @@ class _SettingState extends State<Setting> {
                             fontWeight: FontWeight.w300),
                         keyboardType: TextInputType.visiblePassword,
                         validator: (value) {
-                          if (value.isEmpty) {
+                          if (value != null && value.isEmpty) {
                             return "Confirmation required.";
                           }
                           if (value != _newPassword) {
@@ -152,44 +152,46 @@ class _SettingState extends State<Setting> {
               height: 45,
               width: width,
               margin: EdgeInsets.only(top: 30, left: 30, right: 30, bottom: 20),
-              child: RaisedButton(
-                elevation: 3,
-                textColor: Colors.white,
-                color: kPrimaryColor,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  elevation: 3,
+                  foregroundColor: Colors.white,
+                  backgroundColor: kPrimaryColor,
+                  shape: new RoundedRectangleBorder(
+                    borderRadius: new BorderRadius.circular(5.0),
+                  ),
+                ),
                 child: _buttonLoginChild(context),
                 onPressed: () async {
-                  if (_formKey.currentState.validate()) {
+                  if (_formKey.currentState!.validate()) {
                     print("VALIDE");
                     setState(() {
                       _isLoad = true;
                       _exPasswordError = false;
                       _exMessage = "";
                     });
-                    ApiResponse res =
-                        await sendRequest(_exPassword, _newPassword);
+                    ApiResponse? res =
+                        await sendRequest(_exPassword!, _newPassword!);
 
-                    if (res.error == false) {
-                      await _showSuccessDialog(res.message);
+                    if (res != null && res.error == false) {
+                      await _showSuccessDialog(res.message!);
                       setState(() {
                         _isLoad = false;
                       });
                       Navigator.pop(context);
-                    } else if (res.message == '400') {
+                    } else if (res != null && res.message == '400') {
                       setState(() {
                         _isLoad = false;
                         _exPasswordError = true;
                         _exMessage = 'Le mot de passe actuel est incorrect.';
                       });
-                    } else if (res.message == "401") {
-                      _sharedPref.removeSharedPrefs();
+                    } else if (res != null && res.message == "401") {
+                      _sharedPref!.removeSharedPrefs();
                       Navigator.of(context).pushNamedAndRemoveUntil(
                           '/login', (Route<dynamic> route) => false);
                     }
                   }
                 },
-                shape: new RoundedRectangleBorder(
-                  borderRadius: new BorderRadius.circular(5.0),
-                ),
               ),
             ),
           ],
@@ -260,11 +262,11 @@ class _SettingState extends State<Setting> {
   }
 }
 
-Future<ApiResponse> sendRequest(
+Future<ApiResponse?> sendRequest(
     String currentPassword, String newPassword) async {
   String url = BASE_URL + '/api/user/password/update';
   SharedPref sharedPref = new SharedPref();
-  String accessToken = await sharedPref.getUserAccessToken();
+  String? accessToken = await sharedPref.getUserAccessToken();
 
   Map<String, String> requestHeaders = {
     'Content-type': 'application/json',
@@ -277,10 +279,11 @@ Future<ApiResponse> sendRequest(
     'new_password': newPassword,
   });
 
-  ApiResponse res;
+  ApiResponse? res;
 
   try {
-    final response = await http.post(url, body: body, headers: requestHeaders);
+    final response =
+        await http.post(Uri.parse(url), body: body, headers: requestHeaders);
     if (response.statusCode == 200) {
       final String responseString = response.body;
       res = apiResponseFromJson(responseString);

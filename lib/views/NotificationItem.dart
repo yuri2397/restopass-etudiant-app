@@ -3,8 +3,8 @@ import 'package:restopass/constants.dart';
 import 'package:restopass/models/Notification.dart';
 
 class NotificationItem extends StatefulWidget {
-  final Not notification;
-  const NotificationItem({Key key, this.notification}) : super(key: key);
+  final Not? notification;
+  const NotificationItem({Key? key, this.notification}) : super(key: key);
 
   @override
   _NotificationItemState createState() => _NotificationItemState();
@@ -44,7 +44,7 @@ class _NotificationItemState extends State<NotificationItem> {
           SizedBox(width: 10),
           Expanded(
             child: Text(
-              widget.notification.not,
+              widget.notification!.not!,
               style: TextStyle(
                   color: Colors.black,
                   fontFamily: 'Poppins Light',

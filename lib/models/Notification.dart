@@ -6,9 +6,9 @@ Not notFromJson(String str) =>
 class Not {
   Not({this.not, this.type, this.state});
 
-  String not;
-  String type;
-  bool state;
+  String? not;
+  String? type;
+  bool? state;
 
   factory Not.fromJson(Map<String, dynamic> json) => Not(
       not: json["notification"],

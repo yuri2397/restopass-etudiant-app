@@ -10,14 +10,14 @@ class Intro extends StatefulWidget {
 }
 
 class _IntroState extends State<Intro> {
-
-  List<PageViewModel> getPages(){
+  List<PageViewModel> getPages() {
     double titleSize = 30;
     double descSize = 17;
     return [
       PageViewModel(
         image: Image.asset("assets/images/welcome.jpg"),
-        titleWidget: Text("RestoPass",
+        titleWidget: Text(
+          "RestoPass",
           style: TextStyle(
             fontSize: titleSize,
             fontFamily: "Poppins Meduim",
@@ -38,34 +38,36 @@ class _IntroState extends State<Intro> {
         ),
       ),
       PageViewModel(
-          image: Image.asset("assets/images/achat.jpg"),
-          titleWidget: Container(
-            margin: EdgeInsets.only(left: 20, right: 20),
-            child: Text("Achetez vos tickets en ligne.",
-              style: TextStyle(
-                fontSize: titleSize,
-                fontFamily: "Poppins Meduim",
-                fontWeight: FontWeight.bold,
-              ),
+        image: Image.asset("assets/images/achat.jpg"),
+        titleWidget: Container(
+          margin: EdgeInsets.only(left: 20, right: 20),
+          child: Text(
+            "Achetez vos tickets en ligne.",
+            style: TextStyle(
+              fontSize: titleSize,
+              fontFamily: "Poppins Meduim",
+              fontWeight: FontWeight.bold,
             ),
           ),
-          bodyWidget: Container(
-            margin: EdgeInsets.only(left: 20, right: 20),
-            child: Text(
-              "Pas de file d'attente, rechargez votre compte et entrez au resto.",
-              style: TextStyle(
-                fontFamily: "Poppins Light",
-                fontSize: descSize,
-              ),
-              textAlign: TextAlign.left,
+        ),
+        bodyWidget: Container(
+          margin: EdgeInsets.only(left: 20, right: 20),
+          child: Text(
+            "Pas de file d'attente, rechargez votre compte et entrez au resto.",
+            style: TextStyle(
+              fontFamily: "Poppins Light",
+              fontSize: descSize,
             ),
+            textAlign: TextAlign.left,
           ),
+        ),
       ),
       PageViewModel(
         image: Image.asset("assets/images/qr-code.jpg"),
         titleWidget: Container(
           margin: EdgeInsets.only(left: 20, right: 20),
-          child: Text("Votre QR code, votre meilleur ami.",
+          child: Text(
+            "Votre QR code, votre meilleur ami.",
             style: TextStyle(
               fontSize: titleSize,
               fontFamily: "Poppins Meduim",
@@ -89,7 +91,8 @@ class _IntroState extends State<Intro> {
         image: Image.asset("assets/images/transfer.jpg"),
         titleWidget: Container(
           margin: EdgeInsets.only(left: 20, right: 20),
-          child: Text("Partagez vos tickets avec vos amis.",
+          child: Text(
+            "Partagez vos tickets avec vos amis.",
             style: TextStyle(
               fontSize: titleSize,
               fontFamily: "Poppins Meduim",
@@ -110,39 +113,40 @@ class _IntroState extends State<Intro> {
         ),
       ),
       PageViewModel(
-          image: Image.asset("assets/images/achat.jpg"),
-          titleWidget: Container(
-            margin: EdgeInsets.only(left: 20, right: 20),
-            child: Text("Pas d'argent? Empruntez des tickets.",
-              style: TextStyle(
-                fontSize: titleSize,
-                fontFamily: "Poppins Meduim",
-                fontWeight: FontWeight.bold,
-              ),
+        image: Image.asset("assets/images/achat.jpg"),
+        titleWidget: Container(
+          margin: EdgeInsets.only(left: 20, right: 20),
+          child: Text(
+            "Pas d'argent? Empruntez des tickets.",
+            style: TextStyle(
+              fontSize: titleSize,
+              fontFamily: "Poppins Meduim",
+              fontWeight: FontWeight.bold,
             ),
           ),
-          bodyWidget: Container(
-            margin: EdgeInsets.only(left: 20, right: 20),
-            child: Text(
-              "Le rembourssement se fera au prochain rechargement.",
-              style: TextStyle(
-                fontFamily: "Poppins Light",
-                fontSize: descSize,
-              ),
-              textAlign: TextAlign.left,
+        ),
+        bodyWidget: Container(
+          margin: EdgeInsets.only(left: 20, right: 20),
+          child: Text(
+            "Le rembourssement se fera au prochain rechargement.",
+            style: TextStyle(
+              fontFamily: "Poppins Light",
+              fontSize: descSize,
             ),
+            textAlign: TextAlign.left,
           ),
+        ),
       ),
-      
     ];
   }
-  SharedPref _pref;
+
+  SharedPref? _pref;
 
   @override
   void initState() {
     super.initState();
     _pref = SharedPref();
-    _pref.setFirstTime(true);
+    _pref?.setFirstTime(true);
   }
 
   @override
@@ -153,20 +157,15 @@ class _IntroState extends State<Intro> {
         done: Text("Se connecter"),
         onDone: () {
           Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => Login())
-          );
+              context, MaterialPageRoute(builder: (context) => Login()));
         },
         skip: Icon(Icons.skip_next_rounded),
         onSkip: () {
           Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => Login())
-          );
+              context, MaterialPageRoute(builder: (context) => Login()));
         },
         pages: getPages(),
       ),
     );
   }
-
 }

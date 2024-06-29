@@ -4,7 +4,7 @@ import 'package:pretty_qr_code/pretty_qr_code.dart';
 class Code extends StatefulWidget {
   static const String routeName = '/qrcode';
   final String number;
-  const Code({Key key, this.number}) : super(key: key);
+  const Code({Key? key,required this.number}) : super(key: key);
 
   @override
   _CodeState createState() => _CodeState();

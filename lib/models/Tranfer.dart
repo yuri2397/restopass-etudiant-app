@@ -11,9 +11,9 @@ class Transfer {
       this.other
   });
 
-  String other;
-  String date;
-  int amount;
+  String? other;
+  String? date;
+  int? amount;
 
   factory Transfer.fromJson(Map<String, dynamic> json) => Transfer(
     amount: json["amount"],
@@ -30,8 +30,8 @@ class Transfer {
   @override
   String toString() {
     return "AMOUNT : " + amount.toString() + "\n"
-            + "DATE : " + date + "\n"
-            + "OTHER : " + other + "\n";
+            + "DATE : " + date! + "\n"
+            + "OTHER : " + other! + "\n";
   }
 }
 

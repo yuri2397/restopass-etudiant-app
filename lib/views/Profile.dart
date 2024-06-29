@@ -1,13 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:ui';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:barcode_scan/barcode_scan.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/gestures.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -32,37 +28,37 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
-  SharedPref _pref;
-  Future<User> myFuture;
-  AnimationController _controller;
-  Animation _animation;
+  SharedPref? _pref;
+  late Future<User?> myFuture;
+  AnimationController? _controller;
+  Animation<double>? _animation;
   double _notHeight = 100.0;
   // VARIABLE POUR LE BOTTOMSHEET TRANSFER
-  String _montant, _desNumber;
+  String? _montant, _desNumber;
   bool _close = false;
   TextEditingController numberController = TextEditingController();
-  User _user;
+  User? _user;
   // ignore: unused_field
-  bool _montantError;
+  bool? _montantError;
   // ignore: unused_field
-  String _montantErrorMessage;
+  String? _montantErrorMessage;
   final _formKey = GlobalKey<FormState>();
   final _formEmpruntKey = GlobalKey<FormState>();
   bool _reloadPay = false;
   TextEditingController _numberController = TextEditingController();
-  String _montantEmprunt;
+  int? _montantEmprunt;
   bool _numberHasError = false;
 
   String _numberErrorMessage = "";
 
   bool _empruntHasError = false;
 
-  String _empruntErrorMessage;
+  String? _empruntErrorMessage;
 
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
-  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+  // final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
 
   @override
   void initState() {
@@ -72,40 +68,40 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     initNotification();
     _controller =
         AnimationController(duration: Duration(seconds: 2), vsync: this);
-    _animation = Tween(begin: 0.0, end: 1.0).animate(_controller);
+    _animation = Tween(begin: 0.0, end: 1.0).animate(_controller!);
     _pref = new SharedPref();
     super.initState();
   }
 
   _getMessage() {
-    _firebaseMessaging.configure(
-        onMessage: (Map<String, dynamic> message) async {
-      print("onMessage : $message");
-    }, onLaunch: (Map<String, dynamic> message) async {
-      showNotification(message['notification']);
-      print("ADD NOTIFICATION : $message");
-    }, onResume: (Map<String, dynamic> message) async {
-      showNotification(message['notification']);
-      print("ADD NOTIFICATION : $message");
-    });
+    // _firebaseMessaging.configure(
+    //     onMessage: (Map<String, dynamic> message) async {
+    //   print("onMessage : $message");
+    // }, onLaunch: (Map<String, dynamic> message) async {
+    //   showNotification(message['notification']);
+    //   print("ADD NOTIFICATION : $message");
+    // }, onResume: (Map<String, dynamic> message) async {
+    //   showNotification(message['notification']);
+    //   print("ADD NOTIFICATION : $message");
+    // });
   }
 
   initNotification() {
     /**NOTIFICATION */
-    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-        FlutterLocalNotificationsPlugin();
-    var initializationSettingsAndroid =
-        AndroidInitializationSettings('app_icon');
-    var initializationSettingsIOS = IOSInitializationSettings(
-        onDidReceiveLocalNotification: (id, title, body, payload) =>
-            onDidReceiveLocalNotification(id, title, body, payload));
-    var initializationSettings = InitializationSettings(
-        android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
-    flutterLocalNotificationsPlugin.initialize(initializationSettings,
-        onSelectNotification: (value) => onSelectNotification(value));
+    // FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    //     FlutterLocalNotificationsPlugin();
+    // var initializationSettingsAndroid =
+    //     AndroidInitializationSettings('app_icon');
+    // var initializationSettingsIOS = IOSInitializationSettings(
+    //     onDidReceiveLocalNotification: (id, title, body, payload) =>
+    //         onDidReceiveLocalNotification(id, title, body, payload));
+    // var initializationSettings = InitializationSettings(
+    //     android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
+    // flutterLocalNotificationsPlugin.initialize(initializationSettings,
+    //     onSelectNotification: (value) => onSelectNotification(value));
   }
 
-  Future onSelectNotification(String payload) {
+  void onSelectNotification(String payload) {
     print("onSelectNotification : $payload");
   }
 
@@ -114,30 +110,30 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   }
 
   showNotification(Map<String, dynamic> message) async {
-    var android = AndroidNotificationDetails(
-        'BIBLIO_CHANNEL_ID', 'BIBLIO_CHANNEL_NAME ', 'description',
-        priority: Priority.high, importance: Importance.max);
-    var iOS = IOSNotificationDetails();
-    var platform = new NotificationDetails(android: android, iOS: iOS);
-    await flutterLocalNotificationsPlugin.show(
-      0,
-      message['title'],
-      message['body'],
-      platform,
-      payload: 'New Payload',
-    );
+    // var android = AndroidNotificationDetails(
+    //     'BIBLIO_CHANNEL_ID', 'BIBLIO_CHANNEL_NAME ', 'description',
+    //     priority: Priority.high, importance: Importance.max);
+    // var iOS = IOSNotificationDetails();
+    // var platform = new NotificationDetails(android: android, iOS: iOS);
+    // await flutterLocalNotificationsPlugin.show(
+    //   0,
+    //   message['title'],
+    //   message['body'],
+    //   platform,
+    //   payload: 'New Payload',
+    // );
   }
 
   _registerOnFirebase() async {
     var number = await SharedPref().getUserNumber();
-    _firebaseMessaging.subscribeToTopic(number.toString());
-    _firebaseMessaging.subscribeToTopic("all");
-    print("NUMBER TOPICS : $number");
+    // _firebaseMessaging.subscribeToTopic(number.toString());
+    // _firebaseMessaging.subscribeToTopic("all");
+    // print("NUMBER TOPICS : $number");
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _controller?.dispose();
     super.dispose();
   }
 
@@ -149,14 +145,14 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           if (snapshot.hasError) {
-            _controller.forward(from: 0.0);
+            _controller?.forward(from: 0.0);
             return Material(
               color: Colors.white,
               child: Container(
                 margin: const EdgeInsets.only(top: 36.0),
                 width: double.infinity,
                 child: FadeTransition(
-                  opacity: _animation,
+                  opacity: _animation!,
                   child: Center(
                     child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -181,7 +177,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                             ),
                           ),
                           SizedBox(height: 15),
-                          FlatButton(
+                          TextButton(
                             onPressed: () {
                               setState(() {
                                 myFuture = getUser();
@@ -216,11 +212,11 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
       });
 
   Widget _mainWidget(User user, context) {
-    _pref.addUserEmail(user.email);
-    _pref.addUserFirstName(user.firstName);
-    _pref.addUserLastName(user.lastName);
-    _pref.addUserNubmer(user.number);
-    _pref.addUserPay(user.pay);
+    _pref?.addUserEmail(user.email!);
+    _pref?.addUserFirstName(user.firstName!);
+    _pref?.addUserLastName(user.lastName!);
+    _pref?.addUserNubmer(user.number!);
+    _pref?.addUserPay(user.pay!);
     _user = user;
     return Scaffold(
       appBar: AppBar(
@@ -264,7 +260,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                     builder: (BuildContext context, snapshot) {
                       print("$snapshot");
                       if (snapshot.hasData) {
-                        return _displayNotificationList(snapshot.data, context);
+                        return _displayNotificationList(
+                            snapshot.data!, context);
                       } else if (snapshot.hasError) {
                         return Text("${snapshot.error}");
                       } else {
@@ -341,7 +338,10 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   }
 
   Widget _createCardButton(
-      {context, String text, String imagePath, GestureTapCallback onTap}) {
+      {context,
+      required String text,
+      required String imagePath,
+      required GestureTapCallback onTap}) {
     Size size = MediaQuery.of(context).size;
     return InkWell(
       onTap: onTap,
@@ -381,7 +381,6 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   }
 
   void _showBottomSheetEmprunt(context) {
-    Size size = MediaQuery.of(context).size;
     showModalBottomSheet(
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(16.0))),
@@ -430,14 +429,11 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                             : null,
                                         hintText: 'Montant à emprunter'),
                                     autofocus: false,
-                                    validator: (String value) {
-                                      if (value.isEmpty) {
+                                    validator: (String? value) {
+                                      if (value != null && value.isEmpty) {
                                         return 'Montant requis.';
                                       }
-                                      int test =
-                                          int.parse(value, onError: (string) {
-                                        return -1;
-                                      });
+                                      int test = int.parse(value!);
                                       print("TEST : $test");
                                       if (test <= -1) {
                                         return "Montant invalide.";
@@ -451,7 +447,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                       return null;
                                     },
                                     onChanged: (String value) {
-                                      _montantEmprunt = value;
+                                      _montantEmprunt = int.parse(value);
                                     },
                                   ),
                                 ),
@@ -463,41 +459,40 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                   child: Container(
                                     margin:
                                         EdgeInsets.only(top: 15, bottom: 20),
-                                    child: FlatButton(
-                                      color: kPrimaryColor,
+                                    child: TextButton(
+                                      style: TextButton.styleFrom(
+                                          foregroundColor: kPrimaryColor),
                                       child: Text("Valider",
                                           style: TextStyle(
                                               color: Colors.white,
                                               fontFamily: "Poppins Light")),
                                       onPressed: () async {
-                                        if (_formEmpruntKey.currentState
+                                        if (_formEmpruntKey.currentState!
                                             .validate()) {
                                           showLoaderDialog(context);
-                                          ApiResponse res =
+                                          ApiResponse? res =
                                               await empruntRequest(
-                                                  _montantEmprunt);
-                                          print("EMPRUNT RES : " + res.message);
-                                          Navigator.pop(context);
-                                          if (res.error == true) {
-                                            mystate(() {
-                                              _empruntErrorMessage =
-                                                  res.message;
-                                              _empruntHasError = true;
-                                            });
-                                          } else {
-                                            mystate(() {
-                                              _empruntErrorMessage =
-                                                  res.message;
-                                              _empruntHasError = false;
-                                              _user.pay +=
-                                                  int.parse(_montantEmprunt,
-                                                      onError: (value) {
-                                                return 0;
+                                                  _montantEmprunt!.toString());
+                                          if (res != null) {
+                                            Navigator.pop(context);
+                                            if (res.error == true) {
+                                              mystate(() {
+                                                _empruntErrorMessage =
+                                                    res.message;
+                                                _empruntHasError = true;
                                               });
-                                            });
-                                            await _showSuccessDialog(
-                                                res.message);
-                                            Navigator.of(context).pop();
+                                            } else {
+                                              mystate(() {
+                                                _empruntErrorMessage =
+                                                    res.message;
+                                                _empruntHasError = false;
+                                                _user?.pay = (_user!.pay! +
+                                                    _montantEmprunt!);
+                                              });
+                                              await _showSuccessDialog(
+                                                  res.message!);
+                                              Navigator.of(context).pop();
+                                            }
                                           }
                                         }
                                       },
@@ -636,16 +631,16 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                           : null,
                                       hintText: 'Déstinataire'),
                                   autofocus: false,
-                                  validator: (String value) {
-                                    Pattern pattern = r'^[0-9]{11}$';
+                                  validator: (String? value) {
+                                    String pattern = r'^[0-9]{11}$';
                                     RegExp regex = new RegExp(pattern);
-                                    if (value.isEmpty) {
+                                    if (value != null || value!.isEmpty) {
                                       return 'N° de dossier requis.';
                                     }
                                     if (!regex.hasMatch(value)) {
                                       return "N° de dossier invalide.";
                                     }
-                                    if (_user.number.toString() == value) {
+                                    if (_user?.number.toString() == value) {
                                       return "Impossible. Ce numéro est le vôtre";
                                     }
                                     return null;
@@ -663,9 +658,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                   child: InkWell(
                                     onTap: () async {
                                       _numberController.text = "";
-                                      String number = await scanQR();
-                                      print("QR CODE SCANNER : " + number);
-                                      if (number != "-1") {
+                                      String? number = await scanQR();
+                                      if (number != null && number != "-1") {
                                         if (number.length == 11) {
                                           mystate(() {
                                             _numberHasError = false;
@@ -706,13 +700,11 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                 fontWeight: FontWeight.w300),
                             decoration: InputDecoration(hintText: 'Montant'),
                             autofocus: false,
-                            validator: (String value) {
-                              if (value.isEmpty) {
+                            validator: (String? value) {
+                              if (value != null && value.isEmpty) {
                                 return 'Montant requis.';
                               }
-                              int test = int.parse(value, onError: (string) {
-                                return -1;
-                              });
+                              int test = int.parse(value!);
                               print("TEST : $test");
                               if (test <= -1) {
                                 return "Montant invalide.";
@@ -726,7 +718,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                               if (test % 50 != 0) {
                                 return "Montant n'est pas un multiple de 50";
                               }
-                              if (_user.pay < test) {
+                              if (_user!.pay! < test) {
                                 return "Solde insuffisant";
                               }
                               return null;
@@ -741,19 +733,21 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                               bottom: MediaQuery.of(context).viewInsets.bottom),
                           child: Container(
                             margin: EdgeInsets.only(top: 15, bottom: 20),
-                            child: FlatButton(
-                              color: kPrimaryColor,
+                            child: TextButton(
+                              style: TextButton.styleFrom(
+                                  foregroundColor: kPrimaryColor),
                               child: Text("Valider",
                                   style: TextStyle(
                                       color: Colors.white,
                                       fontFamily: "Poppins Light")),
                               onPressed: () async {
-                                if (_formKey.currentState.validate()) {
+                                if (_formKey.currentState!.validate()) {
                                   showLoaderDialog(context);
-                                  Recipient recipient =
-                                      await transfer(_desNumber);
-                                  Navigator.pop(context);
+                                  Recipient? recipient =
+                                      await transfer(_desNumber!);
                                   if (recipient == null) {
+                                    Navigator.pop(context);
+
                                     Fluttertoast.showToast(
                                         backgroundColor: Colors.red,
                                         textColor: Colors.white,
@@ -763,10 +757,11 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                         gravity: ToastGravity.TOP,
                                         timeInSecForIosWeb: 1);
                                   } else if (recipient.lastName == "422") {
-                                    print("NUMMMMMM : " + recipient.firstName);
+                                    print("NUMMMMMM : " + recipient.firstName!);
                                     setState(() {
                                       _numberHasError = true;
-                                      _numberErrorMessage = recipient.firstName;
+                                      _numberErrorMessage =
+                                          recipient.firstName!;
                                     });
                                   } else {
                                     setState(() {
@@ -774,7 +769,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                     });
                                     Navigator.pop(context);
                                     _transferConfDialog(
-                                        context, recipient, _montant);
+                                        context, recipient, _montant!);
                                   }
                                 }
                               },
@@ -814,14 +809,12 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
         return CustomDialog(
           onClick: (bool response) async {
             if (response) {
-              ApiResponse res =
-                  await transferConfirmation(_desNumber, _montant);
-              if (res.error == false) {
+              ApiResponse? res =
+                  await transferConfirmation(_desNumber!, _montant!);
+              if (res?.error == false) {
                 setState(() {
-                  _user.pay -= int.parse(_montant, onError: (value) {
-                    return 0;
-                  });
-                  _pref.addUserPay(_user.pay);
+                  _user?.pay = (_user!.pay! - int.parse(_montant!));
+                  _pref!.addUserPay(_user!.pay!);
                 });
               }
               return res;
@@ -855,9 +848,9 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   }
 }
 
-Future<ApiResponse> empruntRequest(String amount) async {
+Future<ApiResponse?> empruntRequest(String amount) async {
   String url = BASE_URL + '/api/user/emprunt';
-  String accessToken = await new SharedPref().getUserAccessToken();
+  String? accessToken = await new SharedPref().getUserAccessToken();
 
   Map<String, String> requestHeaders = {
     'Content-Type': 'application/json',
@@ -869,10 +862,11 @@ Future<ApiResponse> empruntRequest(String amount) async {
     "amount": amount,
   });
 
-  ApiResponse res;
+  ApiResponse? res;
 
   try {
-    final response = await http.post(url, body: body, headers: requestHeaders);
+    final response =
+        await http.post(Uri.parse(url), body: body, headers: requestHeaders);
 
     final String responseString = response.body;
     res = apiResponseFromJson(responseString);
@@ -884,10 +878,12 @@ Future<ApiResponse> empruntRequest(String amount) async {
   }
 }
 
-Future<String> scanQR() async {
-  String barcodeScanRes;
+Future<String?> scanQR() async {
+  String? barcodeScanRes;
   try {
-    barcodeScanRes = await BarcodeScanner.scan();
+    barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
+        "#FF5C01CA", "Annuler", false, ScanMode.QR);
+    // barcodeScanRes = await BarCode.scan();
   } catch (e) {
     barcodeScanRes = null;
     Fluttertoast.showToast(
@@ -920,24 +916,11 @@ Widget progressBar() {
           )),
     ),
   );
-
-  Widget _displayNotificationList(List<Not> data, BuildContext context) {
-    if (data.length == 0) {
-      return Container();
-    } else {
-      return ListView.builder(
-          shrinkWrap: true,
-          scrollDirection: Axis.horizontal,
-          itemCount: data.length,
-          itemBuilder: (context, index) =>
-              NotificationItem(notification: data[index]));
-    }
-  }
 }
 
-Future<Recipient> transfer(String recipient) async {
+Future<Recipient?> transfer(String recipient) async {
   String url = BASE_URL + '/api/user/transfer';
-  String accessToken = await new SharedPref().getUserAccessToken();
+  String? accessToken = await new SharedPref().getUserAccessToken();
 
   Map<String, String> requestHeaders = {
     'Content-Type': 'application/json',
@@ -950,7 +933,8 @@ Future<Recipient> transfer(String recipient) async {
   });
 
   try {
-    final response = await http.post(url, body: body, headers: requestHeaders);
+    final response =
+        await http.post(Uri.parse(url), body: body, headers: requestHeaders);
 
     if (response.statusCode == 200) {
       final String responseString = response.body;
@@ -975,10 +959,10 @@ Future<Recipient> transfer(String recipient) async {
   }
 }
 
-Future<ApiResponse> transferConfirmation(
+Future<ApiResponse?> transferConfirmation(
     String recipient, String amount) async {
   String url = BASE_URL + '/api/user/confirm';
-  String accessToken = await new SharedPref().getUserAccessToken();
+  String? accessToken = await new SharedPref().getUserAccessToken();
 
   Map<String, String> requestHeaders = {
     'Content-Type': 'application/json',
@@ -992,7 +976,8 @@ Future<ApiResponse> transferConfirmation(
   });
 
   try {
-    final response = await http.post(url, body: body, headers: requestHeaders);
+    final response =
+        await http.post(Uri.parse(url), body: body, headers: requestHeaders);
     if (response.statusCode == 200) {
       print("RES CONF : " + response.body);
       final String responseString = response.body;
@@ -1013,23 +998,23 @@ Future<ApiResponse> transferConfirmation(
   }
 }
 
-Future<User> getUser() async {
+Future<User?> getUser() async {
   String url = BASE_URL + '/api/user/profile';
 
   SharedPref sharedPref = new SharedPref();
-  String email = await sharedPref.getUserEmail();
+  String? email = await sharedPref.getUserEmail();
 
   if (email != null) {
-    String f = await sharedPref.getUserFirstName();
-    String l = await sharedPref.getUserLastName();
-    int n = await sharedPref.getUserNumber();
-    int p = await sharedPref.getUserPay();
+    String? f = await sharedPref.getUserFirstName();
+    String? l = await sharedPref.getUserLastName();
+    int? n = await sharedPref.getUserNumber();
+    int? p = await sharedPref.getUserPay();
     User s =
         new User(email: email, firstName: f, lastName: l, number: n, pay: p);
     return s;
   }
 
-  String accessToken = await sharedPref.getUserAccessToken();
+  String? accessToken = await sharedPref.getUserAccessToken();
 
   Map<String, String> requestHeaders = {
     'Content-Type': 'application/json',
@@ -1037,10 +1022,10 @@ Future<User> getUser() async {
     'Authorization': 'Bearer $accessToken',
   };
 
-  User user;
+  User? user;
 
   try {
-    final response = await http.get(url, headers: requestHeaders);
+    final response = await http.get(Uri.parse(url), headers: requestHeaders);
     if (response.statusCode == 200) {
       final String responseString = response.body;
       user = userFromJson(responseString);
@@ -1067,7 +1052,7 @@ Future<List<Not>> _getNotification() async {
   String url = BASE_URL + '/api/user/notifications';
 
   SharedPref sharedPref = new SharedPref();
-  String accessToken = await sharedPref.getUserAccessToken();
+  String? accessToken = await sharedPref.getUserAccessToken();
 
   Map<String, String> requestHeaders = {
     'Content-Type': 'application/json',
@@ -1076,17 +1061,17 @@ Future<List<Not>> _getNotification() async {
   };
 
   try {
-    final response = await http.get(url, headers: requestHeaders);
+    final response = await http.get(Uri.parse(url), headers: requestHeaders);
     if (response.statusCode == 200) {
       List<Not> n = (json.decode(response.body) as List)
           .map((i) => Not.fromJson(i))
           .toList();
       return n;
     } else {
-      return new List<Not>();
+      return [];
     }
   } catch (e) {
     print("CATTTTTTTTTT $e");
-    return new List<Not>();
+    return [];
   }
 }

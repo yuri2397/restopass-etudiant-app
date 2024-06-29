@@ -5,8 +5,8 @@ class CardItemPassage extends StatefulWidget {
   final Passage passage;
 
   CardItemPassage({
-    Key key,
-    this.passage,
+    Key? key,
+    required this.passage,
   }) : super(key: key);
 
   @override
@@ -42,7 +42,7 @@ class _CardItemPassageState extends State<CardItemPassage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        widget.passage.resto,
+                        widget.passage.resto!,
                         style: TextStyle(
                           fontFamily: "Poppins Light",
                           fontSize: 15,
@@ -55,7 +55,7 @@ class _CardItemPassageState extends State<CardItemPassage> {
                       Text(
                         DateFormat.yMMMMd('fr_FR').format(
                             DateFormat("yyyy-MM-dd")
-                                .parse(widget.passage.date)),
+                                .parse(widget.passage.date!)),
                         style: TextStyle(
                           fontFamily: "Poppins Light",
                           fontSize: 12,

@@ -11,9 +11,9 @@ class Passage {
       this.resto
   });
 
-  String resto;
-  String date;
-  int amount;
+  String? resto;
+  String? date;
+  int? amount;
 
   factory Passage.fromJson(Map<String, dynamic> json) => Passage(
     amount: json["amount"],
@@ -29,9 +29,9 @@ class Passage {
 
   @override
   String toString() {
-    return "AMOUNT : " + amount.toString() + "\n"
-            + "DATE : " + date + "\n"
-            + "RESTO : " + resto + "\n";
+    return "AMOUNT : " + amount!.toString() + "\n"
+            + "DATE : " + date! + "\n"
+            + "RESTO : " + resto! + "\n";
   }
 }
 

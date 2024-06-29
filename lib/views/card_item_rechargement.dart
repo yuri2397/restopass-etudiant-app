@@ -5,11 +5,11 @@ import 'package:restopass/models/Rechargement.dart';
 import 'package:intl/intl.dart';
 
 class CardItemRechargement extends StatefulWidget {
-  final Rechargement rechargement;
+  final   Rechargement rechargement;
 
   CardItemRechargement({
-    Key key,
-    this.rechargement,
+    Key? key,
+    required  this.rechargement,
   }) : super(key: key);
 
   @override
@@ -44,7 +44,7 @@ class _CardItemRechargementState extends State<CardItemRechargement> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        widget.rechargement.phoneNumber,
+                        widget.rechargement.phoneNumber!,
                         style: TextStyle(
                           fontFamily: "Poppins Light",
                           fontSize: 15,
@@ -57,7 +57,7 @@ class _CardItemRechargementState extends State<CardItemRechargement> {
                       Text(
                         DateFormat.yMMMMd('fr_FR').format(
                             DateFormat("yyyy-MM-dd")
-                                .parse(widget.rechargement.date)),
+                                .parse(widget.rechargement.date!)),
                         style: TextStyle(
                           fontFamily: "Poppins Light",
                           fontSize: 12,

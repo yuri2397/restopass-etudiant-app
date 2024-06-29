@@ -4,22 +4,21 @@ import 'package:restopass/utils/SharedPref.dart';
 import 'package:restopass/views/Code.dart';
 import 'package:restopass/views/Profile.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_money_formatter/flutter_money_formatter.dart';
 import '../constants.dart';
 
 class StackContainer extends StatefulWidget {
   final User user;
-  StackContainer({Key key, this.user}) : super(key: key);
+  StackContainer({Key? key, required this.user}) : super(key: key);
 
   @override
   _StackContainerState createState() => _StackContainerState();
 }
 
 class _StackContainerState extends State<StackContainer> {
-  SharedPref _pref;
-  String _fullName;
-  Widget _alert;
-  Size size;
+  SharedPref? _pref;
+  String? _fullName;
+  Widget _alert = Container();
+  Size? size;
   bool _isReload = false;
 
   @override
@@ -38,8 +37,8 @@ class _StackContainerState extends State<StackContainer> {
 
   @override
   Widget build(BuildContext context) {
-    String f = capitalize(widget.user.firstName);
-    String l = capitalize(widget.user.lastName);
+    String f = capitalize(widget.user.firstName!);
+    String l = capitalize(widget.user.lastName!);
     if (f.length > 10) {
       f = f.substring(0, 1) + '.';
     }
@@ -56,7 +55,7 @@ class _StackContainerState extends State<StackContainer> {
               children: <Widget>[
                 /* Prenom Nom et Solde */
                 Container(
-                  width: size.width,
+                  width: size?.width,
                   padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
                   child: Material(
                     borderRadius: BorderRadius.circular(8.0),
@@ -80,8 +79,8 @@ class _StackContainerState extends State<StackContainer> {
                                       alignment: Alignment.centerLeft,
                                       child: InkWell(
                                         onTap: () async {
-                                          int number =
-                                              await _pref.getUserNumber();
+                                          int? number =
+                                              await _pref?.getUserNumber();
                                           Navigator.push(
                                               context,
                                               MaterialPageRoute(
@@ -100,7 +99,7 @@ class _StackContainerState extends State<StackContainer> {
                                     SizedBox(width: 20),
                                     // Prénom et Nom
                                     Text(
-                                      _fullName,
+                                      _fullName!,
                                       style: TextStyle(
                                           fontFamily: 'Poppins Light',
                                           color: Colors.white,
@@ -117,19 +116,7 @@ class _StackContainerState extends State<StackContainer> {
                                       onPayTap();
                                     },
                                     child: Text(
-                                      FlutterMoneyFormatter(
-                                              amount:
-                                                  widget.user.pay.toDouble(),
-                                              settings: MoneyFormatterSettings(
-                                                  symbol: 'F',
-                                                  thousandSeparator: '.',
-                                                  decimalSeparator: ',',
-                                                  symbolAndNumberSeparator: ' ',
-                                                  fractionDigits: 0,
-                                                  compactFormatType:
-                                                      CompactFormatType.short))
-                                          .output
-                                          .symbolOnRight,
+                                      "${widget.user.pay}",
                                       style: TextStyle(
                                           fontSize: 30,
                                           fontFamily: 'Poppins Meduim',
@@ -159,11 +146,11 @@ class _StackContainerState extends State<StackContainer> {
     setState(() {
       _isReload = true;
     });
-    int pay = await reloadPay();
+    int? pay = await reloadPay();
     if (pay == -1) {
       setState(() {
         _alert = Container(
-          width: size.width,
+          width: size!.width,
           margin: EdgeInsets.fromLTRB(20, 0, 20, 0),
           child: Material(
             elevation: 2,
@@ -207,10 +194,10 @@ class _StackContainerState extends State<StackContainer> {
       Navigator.of(context)
           .pushNamedAndRemoveUntil('/login', (Route<dynamic> route) => false);
       return;
-    } else if (pay <= -400) {
+    } else if (pay! <= -400) {
       setState(() {
         _alert = Container(
-          width: size.width,
+          width: size!.width,
           margin: EdgeInsets.fromLTRB(20, 0, 20, 0),
           child: Material(
             elevation: 2,
@@ -259,7 +246,7 @@ class _StackContainerState extends State<StackContainer> {
       return;
     } else
       setState(() {
-        _pref.setUserPay(pay);
+        _pref!.setUserPay(pay);
         widget.user.pay = pay;
         _alert = Container();
         _isReload = false;
@@ -272,20 +259,20 @@ String capitalize(String text) {
       text.substring(1, text.length).toLowerCase();
 }
 
-Future<int> reloadPay() async {
+Future<int?> reloadPay() async {
   String url = BASE_URL + '/api/user/bay';
   SharedPref sharedPref = new SharedPref();
-  String accessToken = await sharedPref.getUserAccessToken();
+  String? accessToken = await sharedPref.getUserAccessToken();
   Map<String, String> requestHeaders = {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
     'Authorization': 'Bearer $accessToken',
   };
 
-  int pay;
+  int? pay;
 
   try {
-    final response = await http.get(url, headers: requestHeaders);
+    final response = await http.get(Uri.parse(url), headers: requestHeaders);
     if (response.statusCode == 200) {
       pay = int.parse(response.body);
     } else {

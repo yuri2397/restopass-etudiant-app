@@ -14,7 +14,7 @@ import 'package:webview_flutter/webview_flutter.dart';
 
 class Bay extends StatefulWidget {
   static const String routeName = '/bay';
-  Bay({Key key}) : super(key: key);
+  Bay({Key? key}) : super(key: key);
 
   @override
   _BayState createState() => _BayState();
@@ -86,7 +86,7 @@ class _BayState extends State<Bay> {
   @override
   void initState() {
     super.initState();
-    if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
+    // if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
     flutterWebviewPlugin.onProgressChanged.listen((progress) {
       print(progress);
 

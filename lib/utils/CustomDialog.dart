@@ -7,11 +7,11 @@ import 'package:restopass/views/Profile.dart';
 import 'package:sleek_circular_slider/sleek_circular_slider.dart';
 
 class CustomDialog extends StatefulWidget {
-  final Recipient recipient;
+  final Recipient? recipient;
   final amount;
-  final Function onClick;
+  final Function? onClick;
 
-  const CustomDialog({Key key, this.onClick, this.recipient, this.amount})
+  const CustomDialog({Key? key, this.onClick, this.recipient, this.amount})
       : super(key: key);
 
   @override
@@ -19,18 +19,18 @@ class CustomDialog extends StatefulWidget {
 }
 
 class _CustomDialogState extends State<CustomDialog> {
-  bool _isLoad = false;
-  Widget _icon;
-  String _content;
+  bool? _isLoad = false;
+  Widget? _icon;
+  String? _content;
 
   @override
   void initState() {
     super.initState();
     _icon = progressBar();
     _content = "Transferer ${widget.amount} FCFA à " +
-        widget.recipient.firstName +
+        widget.recipient!.firstName! +
         " " +
-        widget.recipient.lastName;
+        widget.recipient!.lastName!;
   }
 
   @override
@@ -73,7 +73,7 @@ class _CustomDialogState extends State<CustomDialog> {
                 height: 15.0,
               ),
               Text(
-                _content,
+                _content!,
                 style: TextStyle(
                   fontSize: 16.0,
                 ),
@@ -85,25 +85,27 @@ class _CustomDialogState extends State<CustomDialog> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  !_isLoad
-                      ? FlatButton(
-                          textColor: kPrimaryColor,
+                  !_isLoad!
+                      ? TextButton(
+                          style: TextButton.styleFrom(
+                              foregroundColor: kPrimaryColor),
                           child: Text("Annuler"),
                           onPressed: () {
                             Navigator.pop(context);
-                            widget.onClick(false);
+                            widget.onClick!(false);
                           },
                         )
                       : Container(),
-                  !_isLoad
-                      ? FlatButton(
-                          textColor: kPrimaryColor,
+                  !_isLoad!
+                      ? TextButton(
+                          style: TextButton.styleFrom(
+                              foregroundColor: kPrimaryColor),
                           child: Text("Je confirme"),
                           onPressed: () async {
                             setState(() {
                               _isLoad = true;
                             });
-                            ApiResponse res = await widget.onClick(true);
+                            ApiResponse res = await widget.onClick!(true);
                             if (res == null) {
                               Fluttertoast.showToast(
                                   backgroundColor: Colors.red,
@@ -114,7 +116,6 @@ class _CustomDialogState extends State<CustomDialog> {
                                   timeInSecForIosWeb: 1);
                               return;
                             }
-                            print("FINISH : " + res.message);
                             if (res.error == true) {
                               setState(() {
                                 _content = res.message;
@@ -149,7 +150,7 @@ class _CustomDialogState extends State<CustomDialog> {
               radius: 30.0,
               child: ClipRRect(
                   borderRadius: BorderRadius.circular(50),
-                  child: !_isLoad
+                  child: !_isLoad!
                       ? Image.asset('assets/images/transfer.jpg')
                       : _icon)),
         )

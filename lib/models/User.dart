@@ -13,13 +13,13 @@ class User {
     this.pay
   });
 
-  String email;
-  int number;
-  String firstName;
-  String lastName;
-  int pay;
+  String? email;
+  int? number;
+  String? firstName;
+  String? lastName;
+  int? pay;
 
-  int get getPay{
+  int? get getPay{
     return pay;
   }
 
@@ -45,10 +45,10 @@ class User {
 
   @override
   String toString() {
-    return "NUMBER : " + number.toString() + "\n"
-            + "EMAIL : " + email + "\n"
-            + "FIRST_NAME : " + firstName + "\n"
-            + "LAST_NAME : " + lastName + "\n"
+    return "NUMBER : " + number!.toString() + "\n"
+            + "EMAIL : " + email! + "\n"
+            + "FIRST_NAME : " + firstName! + "\n"
+            + "LAST_NAME : " + lastName! + "\n"
             + "PAY : " + pay.toString() + "\n";
   }
 

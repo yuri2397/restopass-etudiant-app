@@ -6,7 +6,7 @@ import 'package:url_launcher/url_launcher.dart' as UrlLauncher;
 import 'Setting.dart';
 
 class Option extends StatefulWidget {
-  Option({Key key}) : super(key: key);
+  Option({Key? key}) : super(key: key);
 
   @override
   _OptionState createState() => _OptionState();
@@ -80,13 +80,13 @@ class _OptionState extends State<Option> {
                                 title: Text("Confirmation"),
                                 content: Text("Voulez-vous vous déconnecter?"),
                                 actions: [
-                                  FlatButton(
+                                  TextButton(
                                     onPressed: () {
                                       Navigator.of(context).pop();
                                     },
                                     child: Text("Non"),
                                   ),
-                                  FlatButton(
+                                  TextButton(
                                     onPressed: () {
                                       SharedPref shar = new SharedPref();
                                       shar.removeSharedPrefs();

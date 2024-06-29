@@ -69,37 +69,37 @@ class SharedPref{
     return prefs.getBool(USER_FIRST_TIME) ?? false;
   }
 
-  Future<String> getUserFirstName() async{
+  Future<String?> getUserFirstName() async{
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString(USER_FIRST_NAME);
   }
 
-  Future<int> getUserNumber() async{
+  Future<int?> getUserNumber() async{
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getInt(USER_NUMBER);
   }
 
-  Future<String> getUserLastName() async{
+  Future<String?> getUserLastName() async{
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString(USER_LAST_NAME);
   }
 
-  Future<String> getUserEmail() async{
+  Future<String?> getUserEmail() async{
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString(USER_EMAIL);
   }
 
-  Future<int> getUserPay() async{
+  Future<int?> getUserPay() async{
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getInt(USER_PAY);
   }
 
-  Future<String> getUserAccessToken() async{
+  Future<String?> getUserAccessToken() async{
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString(USER_ACCESS_TOKEN);
   }
 
-  Future<String> getUserRefreshToken() async{
+  Future<String?> getUserRefreshToken() async{
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString(USER_REFRESH_TOKEN);
   }

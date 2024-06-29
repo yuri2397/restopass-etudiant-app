@@ -11,9 +11,9 @@ class Recipient {
         this.error,
     });
 
-    String firstName;
-    String lastName;
-    bool error;
+    String? firstName;
+    String? lastName;
+    bool? error;
 
     factory Recipient.fromJson(Map<String, dynamic> json) => Recipient(
         firstName: json["first_name"],

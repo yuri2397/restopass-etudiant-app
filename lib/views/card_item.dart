@@ -6,8 +6,8 @@ class CardItem extends StatefulWidget {
   final Transfer transfer;
 
   CardItem({
-    Key key,
-    this.transfer,
+    Key? key,
+    required this.transfer,
   }) : super(key: key);
 
   @override
@@ -17,7 +17,7 @@ class CardItem extends StatefulWidget {
 class _CardItemState extends State<CardItem> {
   @override
   Widget build(BuildContext context) {
-    bool mode = widget.transfer.amount < 0;
+    bool mode = widget.transfer.amount! < 0;
     return Container(
       width: double.infinity,
       margin: EdgeInsets.only(top: 5),
@@ -43,7 +43,7 @@ class _CardItemState extends State<CardItem> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        widget.transfer.other,
+                        widget.transfer.other!,
                         style: TextStyle(
                           fontFamily: "Poppins Light",
                           fontSize: 15,
@@ -56,7 +56,7 @@ class _CardItemState extends State<CardItem> {
                       Text(
                         DateFormat.yMMMMd('fr_FR').format(
                             DateFormat("yyyy-MM-dd")
-                                .parse(widget.transfer.date)),
+                                .parse(widget.transfer.date!)),
                         style: TextStyle(
                           fontFamily: "Poppins Light",
                           fontSize: 12,

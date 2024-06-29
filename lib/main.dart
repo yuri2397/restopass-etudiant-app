@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
         '/profile': (context) => Profile(),
         '/settings': (context) => Setting(),
         '/bay': (context) => Bay(),
-        '/code': (context) => Code(),
+        '/code': (context) => Code(number: '-1',),
         '/historic': (context) => ListTransfer(),
         '/login': (context) => Login(),
       },

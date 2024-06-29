@@ -12,10 +12,10 @@ class AccessToken {
         this.refreshToken,
     });
 
-    String tokenType;
-    int expiresIn;
-    String accessToken;
-    String refreshToken;
+    String? tokenType;
+    int? expiresIn;
+    String? accessToken;
+    String? refreshToken;
 
 
 

@@ -10,7 +10,7 @@ import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 // ignore: must_be_immutable
 class PayDunya extends StatefulWidget {
   String url;
-  PayDunya(this.url, {Key key}) : super(key: key);
+  PayDunya(this.url, {Key? key}) : super(key: key);
 
   @override
   _PayDunyaState createState() => _PayDunyaState();
@@ -21,7 +21,7 @@ class _PayDunyaState extends State<PayDunya> {
   final _key = UniqueKey();
   final String script =
       "var one = document.getElementsByClassName('right')[0];one.parentNode.removeChild(one);var two = document.getElementsByClassName('highlight_paragraph visible-xs')[0];two.parentNode.removeChild(two);var countries_ssd = document.getElementById('countries_msdd');if (countries_ssd.style.display !== 'none') {countries_ssd.style.display = 'none';} else {countries_ssd.style.display = 'block';}var text = document.getElementsByTagName('h1')[0];text.innerHTML = 'Choisissez un moyen de paiement.';text.style = 'font-size: 20px; margin: auto; background-color: #5C01CA; padding: 10px;border-radius: 5px; color: white';";
-  WebViewController _webViewController;
+  WebViewController? _webViewController;
   FlutterWebviewPlugin flutterWebviewPlugin = FlutterWebviewPlugin();
   double lineProgress = 0.0;
   @override
@@ -87,7 +87,7 @@ class _PayDunyaState extends State<PayDunya> {
   @override
   void initState() {
     super.initState();
-    if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
+    // if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
     flutterWebviewPlugin.onProgressChanged.listen((progress) {
       print(progress);
 

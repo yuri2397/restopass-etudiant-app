@@ -29,7 +29,8 @@ Future<AccessToken> loginRequest(String number, String password) async {
   });
 
   try {
-    final response = await http.post(url, body: body, headers: requestHeaders);
+    final response =
+        await http.post(Uri.parse(url), body: body, headers: requestHeaders);
     if (response.statusCode == 200) {
       final String responseString = response.body;
       return accessTokenFromJson(responseString);
@@ -51,12 +52,12 @@ Future<AccessToken> loginRequest(String number, String password) async {
 
 class _LoginState extends State<Login> {
   var _image;
-  AccessToken _accessToken;
-  String _message;
+  AccessToken? _accessToken;
+  String? _message;
   var _isLoad = false;
-  String _password, _number;
+  String _password = "", _number = "";
   bool _hasErrors = false, _numberError = false, _passwordError = false;
-  static SharedPref _sharedPref;
+  static SharedPref? _sharedPref;
 
   @override
   void initState() {
@@ -105,7 +106,7 @@ class _LoginState extends State<Login> {
                 margin: EdgeInsets.only(left: 30, right: 30),
                 child: _hasErrors
                     ? Text(
-                        _message,
+                        _message!,
                         style: TextStyle(
                           fontSize: 13,
                           color: Colors.red,
@@ -182,23 +183,27 @@ class _LoginState extends State<Login> {
                 child: Text(
                   "Mot de passe oublié?",
                   style: TextStyle(
-                    color: kPrimaryColor,
-                    fontSize: 13,
-                    fontFamily: "Poppins Light",
-                    decoration: TextDecoration.underline
-                  ),
+                      color: kPrimaryColor,
+                      fontSize: 13,
+                      fontFamily: "Poppins Light",
+                      decoration: TextDecoration.underline),
                   textAlign: TextAlign.left,
                 ),
               ),
             ),
             Container(
               height: 45,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(5.0),
+              ),
               width: width,
               margin: EdgeInsets.only(top: 10, left: 30, right: 30, bottom: 30),
-              child: RaisedButton(
-                elevation: 3,
-                textColor: Colors.white,
-                color: kPrimaryColor,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  elevation: 3,
+                  foregroundColor: Colors.white,
+                  backgroundColor: kPrimaryColor,
+                ),
                 child: _buttonLoginChild(context),
                 onPressed: () async {
                   if (_validator()) {
@@ -206,14 +211,11 @@ class _LoginState extends State<Login> {
                       _isLoad = true;
                     });
                     final AccessToken tmp =
-                        await loginRequest(_number, _password);
+                        await loginRequest(_number!, _password!);
                     _accessToken = tmp;
-                    _login(_accessToken);
+                    _login(_accessToken!);
                   }
                 },
-                shape: new RoundedRectangleBorder(
-                  borderRadius: new BorderRadius.circular(5.0),
-                ),
               ),
             ),
           ],
@@ -228,10 +230,10 @@ class _LoginState extends State<Login> {
       _hasErrors = false;
       _numberError = false;
       _passwordError = false;
-      if (_number == null || _number.isEmpty) {
+      if (_number == null || _number!.isEmpty) {
         _numberError = true;
         value = false;
-      } else if (_password == null || _password.isEmpty) {
+      } else if (_password == null || _password!.isEmpty) {
         _passwordError = true;
         value = false;
       }
@@ -240,10 +242,10 @@ class _LoginState extends State<Login> {
   }
 
   void _login(AccessToken accessToken) {
-    if (accessToken.expiresIn >= 0) {
-      _sharedPref.addUserAccessToken(accessToken.accessToken);
-      _sharedPref.addUserRefreshToken(accessToken.refreshToken);
-      _sharedPref.addUserExpireIn(accessToken.expiresIn);
+    if (accessToken.expiresIn! >= 0) {
+      _sharedPref?.addUserAccessToken(accessToken.accessToken!);
+      _sharedPref?.addUserRefreshToken(accessToken.refreshToken!);
+      _sharedPref?.addUserExpireIn(accessToken.expiresIn!);
       Navigator.pushReplacement(
           context, MaterialPageRoute(builder: (context) => Profile()));
     } else if (accessToken.tokenType == "error") {
@@ -251,7 +253,7 @@ class _LoginState extends State<Login> {
           accessToken.accessToken == "422") {
         _hasErrors = true;
         _message = "N° de dossier ou mot passe invalide";
-      } else if (int.parse(accessToken.refreshToken) >= 500 ||
+      } else if (int.parse(accessToken.refreshToken!) >= 500 ||
           accessToken.accessToken == "400" ||
           accessToken.accessToken == "404") {
         _hasErrors = true;

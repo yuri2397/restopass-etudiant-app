@@ -8,9 +8,9 @@ String rechargementToJson(Rechargement data) => json.encode(data.toJson());
 class Rechargement {
   Rechargement({this.amount, this.date, this.phoneNumber});
 
-  String phoneNumber;
-  String date;
-  int amount;
+  String? phoneNumber;
+  String? date;
+  int? amount;
 
   factory Rechargement.fromJson(Map<String, dynamic> json) => Rechargement(
         amount: json["amount"],
@@ -27,10 +27,10 @@ class Rechargement {
         amount.toString() +
         "\n" +
         "DATE : " +
-        date +
+        date! +
         "\n" +
         "TEL : " +
-        phoneNumber +
+        phoneNumber! +
         "\n";
   }
 }

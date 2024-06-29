@@ -10,8 +10,8 @@ class ApiResponse {
     this.message,
   });
 
-  bool error;
-  String message;
+  bool? error;
+  String? message;
 
 
 

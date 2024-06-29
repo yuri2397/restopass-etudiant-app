@@ -10,10 +10,10 @@ class PayDunyaResponse {
     this.description,
   });
 
-  String responseCode;
-  String responseText;
-  String token;
-  String description;
+  String? responseCode;
+  String? responseText;
+  String? token;
+  String? description;
 
   factory PayDunyaResponse.fromJson(Map<String, dynamic> json) => PayDunyaResponse(
     responseCode: json["response_code"],
